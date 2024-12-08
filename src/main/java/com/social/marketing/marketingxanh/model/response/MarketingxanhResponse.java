@@ -1,14 +1,16 @@
-package com.social.marketing.marketing.model.response;
+package com.social.marketing.marketingxanh.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ServiceResponse {
+public class MarketingxanhResponse {
 
     @JsonProperty("service")
     private String service;
@@ -20,7 +22,7 @@ public class ServiceResponse {
     private String category;
 
     @JsonProperty("rate")
-    private String rate;
+    private BigDecimal rate;
 
     @JsonProperty("min")
     private String min;

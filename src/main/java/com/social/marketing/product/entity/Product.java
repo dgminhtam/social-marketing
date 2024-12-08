@@ -1,4 +1,4 @@
-package com.social.marketing.entity;
+package com.social.marketing.product.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,13 +7,15 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
-public class SocialService extends AbstractEntity {
+public class Product extends AbstractEntity {
 
-    @Column
-    private String code;
+    @Column(unique = true)
+    private String sku;
 
     @Column
     private String name;
@@ -22,7 +24,7 @@ public class SocialService extends AbstractEntity {
     private String description;
 
     @Column
-    private ServiceType type;
+    private BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

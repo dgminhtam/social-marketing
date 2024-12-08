@@ -13,3 +13,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+marketingxanh:
+  url: https://marketingxanh.com/api/v1
+  key: j5P2jlUAtLdcuzZL6zr9zLuGzJQdIR4J
