@@ -9,7 +9,7 @@ import java.util.Set;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Table(
+@Table(name = "categories",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"name", "parent_id"})
         }
