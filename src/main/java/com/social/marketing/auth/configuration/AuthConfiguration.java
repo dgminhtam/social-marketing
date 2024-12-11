@@ -1,4 +1,4 @@
-package com.social.marketing.auth;
+package com.social.marketing.auth.configuration;
 
 import com.social.marketing.auth.jwt.JwtAuthenticationFilter;
 import jakarta.annotation.Resource;
