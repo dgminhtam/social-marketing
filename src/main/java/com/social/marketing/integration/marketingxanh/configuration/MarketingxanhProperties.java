@@ -1,4 +1,4 @@
-package com.social.marketing.marketingxanh.configuration;
+package com.social.marketing.integration.marketingxanh.configuration;
 
 import lombok.Getter;
 import lombok.Setter;

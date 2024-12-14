@@ -1,10 +1,10 @@
-package com.social.marketing.marketingxanh.service.impl;
+package com.social.marketing.integration.marketingxanh.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.social.marketing.marketingxanh.configuration.MarketingxanhProperties;
-import com.social.marketing.marketingxanh.model.response.MarketingxanhResponse;
-import com.social.marketing.marketingxanh.service.MarketingxanhService;
+import com.social.marketing.integration.marketingxanh.configuration.MarketingxanhProperties;
+import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhResponse;
+import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

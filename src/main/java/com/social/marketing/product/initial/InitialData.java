@@ -1,14 +1,13 @@
 package com.social.marketing.product.initial;
 
+import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhResponse;
+import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
-import com.social.marketing.marketingxanh.model.response.MarketingxanhResponse;
-import com.social.marketing.marketingxanh.service.MarketingxanhService;
 import com.social.marketing.product.service.CategoryService;
 import com.social.marketing.product.service.ProductService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;

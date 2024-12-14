@@ -1,4 +1,4 @@
-package com.social.marketing.marketingxanh.model.response;
+package com.social.marketing.integration.marketingxanh.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
