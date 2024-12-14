@@ -1,5 +1,6 @@
 package com.social.marketing.product.entity;
 
+import com.social.marketing.entity.AbstractEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

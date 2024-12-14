@@ -1,4 +1,4 @@
-package com.social.marketing.product.entity;
+package com.social.marketing.entity;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

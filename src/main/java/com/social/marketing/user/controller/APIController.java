@@ -1,4 +1,4 @@
-package com.social.marketing.integration.auth0.controller;
+package com.social.marketing.user.controller;
 
 import com.social.marketing.integration.auth0.resource.Message;
 import org.springframework.http.MediaType;
