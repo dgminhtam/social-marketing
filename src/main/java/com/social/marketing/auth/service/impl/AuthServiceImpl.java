@@ -31,9 +31,9 @@ public class AuthServiceImpl implements AuthService {
         Auth0SignupResponse auth0SignupResponse = auth0Service.signup(auth0SignupRequest);
         User user = new User();
         user.setEmail(request.email());
-        user.setFirst_name(request.firstName());
-        user.setLast_name(request.lastName());
-        user.set_id(auth0SignupResponse.getId());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setExternalId(auth0SignupResponse.getId());
         userRepository.save(user);
     }
 

@@ -17,12 +17,12 @@ public class User extends AbstractEntity {
     private String email;
 
     @Column
-    private String first_name;
+    private String firstName;
 
     @Column
-    private String last_name;
+    private String lastName;
 
     @Column
-    private String _id;
+    private String externalId;
 
 }
