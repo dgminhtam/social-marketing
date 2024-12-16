@@ -25,11 +25,11 @@ public class Auth0ServiceImpl implements Auth0Service {
 
     @Override
     public Auth0SignupResponse signup(Auth0SignupRequest request) {
-        return restTemplateService.postData(properties.getAudience() + SIGN_UP_URL, null, request, Auth0SignupResponse.class);
+        return restTemplateService.postData(properties.getIssuer() + SIGN_UP_URL, null, request, Auth0SignupResponse.class);
     }
 
     @Override
     public Auth0LoginResponse login(Auth0LoginRequest request) {
-        return restTemplateService.postData(properties.getAudience() + LOG_IN_URL, null, request, Auth0LoginResponse.class);
+        return restTemplateService.postData(properties.getIssuer() + LOG_IN_URL, null, request, Auth0LoginResponse.class);
     }
 }

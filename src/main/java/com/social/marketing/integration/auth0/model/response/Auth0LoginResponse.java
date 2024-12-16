@@ -9,9 +9,16 @@ public class Auth0LoginResponse {
     @JsonProperty("access_token")
     private String accessToken;
 
+    @JsonProperty("id_token")
+    private String idToken;
+
+    @JsonProperty("scope")
+    private String scope;
+
+    @JsonProperty("expires_in")
+    private Long expiresIn;
+
     @JsonProperty("token_type")
     private String tokenType;
 
-    @JsonProperty("expires_in")
-    private boolean expiresIn;
 }

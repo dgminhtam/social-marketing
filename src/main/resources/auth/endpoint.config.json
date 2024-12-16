@@ -1,0 +1,7 @@
+{
+  "publicEndpoints": [
+    "/api/public",
+    "/auth/signup",
+    "/auth/login"
+  ]
+}

@@ -24,3 +24,7 @@ okta:
     clientSecret: D3IcG1gY4vbXgKHFWYIVMJg5uFi11wP6O_op532iY0TltOOCEmUNWBwAZdi2m8wA
     issuer: https://dev-khdq8r1qzh4hxf7o.us.auth0.com/
     audience: https://social-marketing.com
+
+public:
+  endpoints:
+      location: /auth/endpoint.config.json
