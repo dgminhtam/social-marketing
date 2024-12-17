@@ -16,7 +16,7 @@ spring:
 
 marketingxanh:
   url: https://marketingxanh.com/api/v1
-  key: j5PlUAtLdcuz2jZL6zr9zLuGzJQdIR4J
+  key: j5P2jlUAtLdcuzZL6zr9zLuGzJQdIR4J
 
 okta:
   oauth2:
@@ -27,4 +27,4 @@ okta:
 
 public:
   endpoints:
-      location: /auth/endpoint.config.json
+    location: /auth/endpoint.config.json

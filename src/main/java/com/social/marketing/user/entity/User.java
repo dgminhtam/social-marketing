@@ -1,9 +1,7 @@
 package com.social.marketing.user.entity;
 
 import com.social.marketing.entity.AbstractEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +19,10 @@ public class User extends AbstractEntity {
 
     @Column
     private String lastName;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column
     private String externalId;
