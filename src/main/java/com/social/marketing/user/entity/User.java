@@ -24,7 +24,7 @@ public class User extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String externalId;
 
 }

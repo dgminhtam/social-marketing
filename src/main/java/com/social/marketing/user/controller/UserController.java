@@ -1,5 +1,8 @@
 package com.social.marketing.user.controller;
 
+import com.social.marketing.user.entity.User;
+import com.social.marketing.user.service.UserService;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,7 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
+    @Resource
+    private UserService userService;
+
     @PostMapping(value = "/profile")
-    public void getProfile() {
+    public User getProfile() {
+        return userService.getCurrentUser();
     }
 }

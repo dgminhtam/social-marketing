@@ -17,7 +17,7 @@ public class Auth0Aspect {
     private OktaOAuth2Properties properties;
 
     @Before("execution(* com.social.marketing.integration.auth0.service.impl.Auth0ServiceImpl.login(..)) && args(request,..)")
-    public void addClientInfoToLoginRequest(JoinPoint joinPoint, Auth0LoginRequest request) {
+    public void addClientInfoToSignUpRequest(JoinPoint joinPoint, Auth0LoginRequest request) {
         if (request != null) {
             if (request.getGrantType() == null) {
                 request.setGrantType("password");
@@ -35,7 +35,7 @@ public class Auth0Aspect {
     }
 
     @Before("execution(* com.social.marketing.integration.auth0.service.impl.Auth0ServiceImpl.signup(..)) && args(request,..)")
-    public void addClientInfoToLoginRequest(JoinPoint joinPoint, Auth0SignupRequest request) {
+    public void addClientInfoToSignUpRequest(JoinPoint joinPoint, Auth0SignupRequest request) {
         if (request != null) {
             if (request.getClientId() == null) {
                 request.setClientId(properties.getClientId());

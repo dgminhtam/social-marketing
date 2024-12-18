@@ -50,4 +50,9 @@ public class ProductServiceImpl implements ProductService {
         }
         return product.get();
     }
+
+    @Override
+    public List<Product> getAll() {
+        return productRepository.findAll();
+    }
 }

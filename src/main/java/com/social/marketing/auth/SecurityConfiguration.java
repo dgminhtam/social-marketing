@@ -12,7 +12,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfiguration {
 
     @Resource
     private EndpointConfigProperties endpointConfigProperties;

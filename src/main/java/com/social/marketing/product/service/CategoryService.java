@@ -7,4 +7,7 @@ import java.util.List;
 public interface CategoryService {
 
     void saveAll(List<Category> categories);
+
+    List<Category> getAll();
 }
+

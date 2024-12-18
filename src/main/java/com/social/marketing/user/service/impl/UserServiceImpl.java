@@ -1,8 +1,10 @@
 package com.social.marketing.user.service.impl;
 
-import com.social.marketing.integration.auth0.model.request.Auth0SignupRequest;
+import com.social.marketing.integration.auth0.model.response.Auth0UserInfoResponse;
+import com.social.marketing.integration.auth0.service.Auth0Service;
+import com.social.marketing.user.entity.User;
+import com.social.marketing.user.repository.UserRepository;
 import com.social.marketing.user.service.UserService;
-import com.social.marketing.rest.service.RestTemplateService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +12,15 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     @Resource
-    private RestTemplateService restTemplateService;
+    private Auth0Service auth0Service;
+
+    @Resource
+    private UserRepository userRepository;
 
     @Override
-    public void signup(Auth0SignupRequest request) {
+    public User getCurrentUser() {
+        Auth0UserInfoResponse response = auth0Service.userInfo();
+        String email = response.getEmail();
+        return userRepository.findByEmail(email);
     }
 }

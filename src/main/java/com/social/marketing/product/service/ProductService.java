@@ -15,4 +15,6 @@ public interface ProductService {
     Page<ProductResponse> search(Specification<Product> specification, Pageable pageable);
 
     Product get(Long id);
+
+    List<Product> getAll();
 }

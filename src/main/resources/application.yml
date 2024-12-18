@@ -13,6 +13,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+      jdbc:
+        time_zone: UTC
 
 marketingxanh:
   url: https://marketingxanh.com/api/v1

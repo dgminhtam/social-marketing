@@ -1,8 +1,8 @@
 package com.social.marketing.user.service;
 
-import com.social.marketing.integration.auth0.model.request.Auth0SignupRequest;
+import com.social.marketing.user.entity.User;
 
 public interface UserService {
 
-    void signup(Auth0SignupRequest request);
+    User getCurrentUser();
 }
