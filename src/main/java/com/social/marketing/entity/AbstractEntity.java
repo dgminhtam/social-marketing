@@ -2,6 +2,7 @@ package com.social.marketing.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -11,8 +12,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@MappedSuperclass
 @Getter
+@MappedSuperclass
+@FieldNameConstants
 @EntityListeners(AuditingEntityListener.class)
 public class AbstractEntity implements Serializable {
 

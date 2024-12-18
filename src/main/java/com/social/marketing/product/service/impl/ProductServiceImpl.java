@@ -52,7 +52,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getAll() {
-        return productRepository.findAll();
+    public List<Product> getAllBySkus(List<String> skus) {
+        Specification<Product> specification =
+                (root, query, builder) -> builder.in(root.get(Product.Fields.sku)).value(skus);
+        return productRepository.findAll(specification);
     }
 }

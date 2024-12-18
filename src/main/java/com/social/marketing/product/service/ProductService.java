@@ -16,5 +16,5 @@ public interface ProductService {
 
     Product get(Long id);
 
-    List<Product> getAll();
+    List<Product> getAllBySkus(List<String> skus);
 }

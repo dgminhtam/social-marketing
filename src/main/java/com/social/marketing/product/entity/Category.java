@@ -4,11 +4,13 @@ import com.social.marketing.entity.AbstractEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.Set;
 
 @Entity
 @Data
+@FieldNameConstants
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "categories",
         uniqueConstraints = {
