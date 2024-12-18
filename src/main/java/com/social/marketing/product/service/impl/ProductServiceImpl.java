@@ -33,15 +33,6 @@ public class ProductServiceImpl implements ProductService {
         return new PageImpl<>(productResponses, products.getPageable(), products.getTotalElements());
     }
 
-    private ProductResponse convert(Product product) {
-        ProductResponse productResponse = new ProductResponse();
-        productResponse.setSku(product.getSku());
-        productResponse.setDescription(product.getDescription());
-        productResponse.setPrice(product.getPrice());
-        productResponse.setName(product.getName());
-        return productResponse;
-    }
-
     @Override
     public Product get(Long id) {
         Optional<Product> product = productRepository.findById(id);
@@ -56,5 +47,15 @@ public class ProductServiceImpl implements ProductService {
         Specification<Product> specification =
                 (root, query, builder) -> builder.in(root.get(Product.Fields.sku)).value(skus);
         return productRepository.findAll(specification);
+    }
+
+    private ProductResponse convert(Product product) {
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setSku(product.getSku());
+        productResponse.setDescription(product.getDescription());
+        productResponse.setPrice(product.getPrice());
+        productResponse.setName(product.getName());
+        productResponse.setCategory(product.getCategory().getName());
+        return productResponse;
     }
 }
