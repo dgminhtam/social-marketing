@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MarketingxanhResponse {
+public class MarketingxanhServiceResponse {
 
     @JsonProperty("service")
     private String service;

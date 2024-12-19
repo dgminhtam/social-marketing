@@ -1,7 +1,7 @@
 package com.social.marketing.product.initial;
 
 import com.social.marketing.exception.NotFoundException;
-import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhResponse;
+import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhServiceResponse;
 import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
@@ -31,12 +31,12 @@ public class InitialData {
     @PostConstruct
     @Transactional
     public void init() {
-        List<MarketingxanhResponse> responses = marketingxanhService.getServices();
+        List<MarketingxanhServiceResponse> responses = marketingxanhService.getServices();
         if (responses.isEmpty()) {
             throw new NotFoundException("No marketingxanh services found");
         }
-        Map<String, List<MarketingxanhResponse>> categoryMap = responses.stream()
-                .collect(Collectors.groupingBy(MarketingxanhResponse::getCategory));
+        Map<String, List<MarketingxanhServiceResponse>> categoryMap = responses.stream()
+                .collect(Collectors.groupingBy(MarketingxanhServiceResponse::getCategory));
 
         List<Category> categories = handleCategory(categoryMap.keySet());
         categories.forEach(category -> handleProduct(categoryMap.get(category.getName()), category));
@@ -58,22 +58,22 @@ public class InitialData {
         return categoryService.saveAll(categories);
     }
 
-    private void handleProduct(List<MarketingxanhResponse> source, Category category) {
-        List<String> skus = source.stream().map(MarketingxanhResponse::getService).toList();
+    private void handleProduct(List<MarketingxanhServiceResponse> source, Category category) {
+        List<String> skus = source.stream().map(MarketingxanhServiceResponse::getService).toList();
         Map<String, Product> existingProductMap = productService.getAllBySkus(skus)
                 .stream()
                 .collect(Collectors.toMap(Product::getSku, Function.identity()));
         List<Product> products = new ArrayList<>();
-        source.forEach(marketingxanhResponse -> {
-            Product product = existingProductMap.get(marketingxanhResponse.getService());
+        source.forEach(marketingxanhServiceResponse -> {
+            Product product = existingProductMap.get(marketingxanhServiceResponse.getService());
             if (Objects.isNull(product)) {
                 product = new Product();
-                product.setSku(marketingxanhResponse.getService());
+                product.setSku(marketingxanhServiceResponse.getService());
             }
             product.setCategory(category);
-            product.setName(marketingxanhResponse.getName());
-            product.setPrice(marketingxanhResponse.getRate());
-            product.setDescription(marketingxanhResponse.getDesc());
+            product.setName(marketingxanhServiceResponse.getName());
+            product.setPrice(marketingxanhServiceResponse.getRate());
+            product.setDescription(marketingxanhServiceResponse.getDesc());
             products.add(product);
         });
         productService.saveAll(products);

@@ -7,6 +7,7 @@ import com.social.marketing.integration.auth0.model.response.Auth0LoginResponse;
 import com.social.marketing.integration.auth0.model.response.Auth0SignupResponse;
 import com.social.marketing.integration.auth0.model.response.Auth0UserInfoResponse;
 import com.social.marketing.integration.auth0.service.Auth0Service;
+import com.social.marketing.rest.factory.ResponseTypeFactory;
 import com.social.marketing.rest.service.RestTemplateService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,12 +30,12 @@ public class Auth0ServiceImpl implements Auth0Service {
 
     @Override
     public Auth0SignupResponse signup(Auth0SignupRequest request) {
-        return restTemplateService.postData(properties.getIssuer() + SIGN_UP_URL, null, request, Auth0SignupResponse.class);
+        return restTemplateService.postData(properties.getIssuer() + SIGN_UP_URL, null, request, ResponseTypeFactory.createFor(Auth0SignupResponse.class));
     }
 
     @Override
     public Auth0LoginResponse login(Auth0LoginRequest request) {
-        return restTemplateService.postData(properties.getIssuer() + LOG_IN_URL, null, request, Auth0LoginResponse.class);
+        return restTemplateService.postData(properties.getIssuer() + LOG_IN_URL, null, request, ResponseTypeFactory.createFor(Auth0LoginResponse.class));
     }
 
     @Override
@@ -45,7 +46,7 @@ public class Auth0ServiceImpl implements Auth0Service {
             throw new RuntimeException("Authorization token is missing");
         }
         headers.set("Authorization", "Bearer " + token);
-        return restTemplateService.postData(properties.getIssuer() + USER_INFO_URL, headers, null, Auth0UserInfoResponse.class);
+        return restTemplateService.postData(properties.getIssuer() + USER_INFO_URL, headers, null, ResponseTypeFactory.createFor(Auth0UserInfoResponse.class));
     }
 
     private String extractTokenFromRequest() {

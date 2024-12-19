@@ -1,9 +1,12 @@
 package com.social.marketing.rest.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.social.marketing.rest.factory.ResponseTypeFactory;
 import com.social.marketing.rest.service.RestTemplateService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,35 +24,36 @@ public class RestTemplateServiceImpl implements RestTemplateService {
     private RestTemplate restTemplate;
 
     @Override
-    public <T> T getData(String url, HttpHeaders headers, Class<T> responseType) {
+    public <T> T getData(String url, HttpHeaders headers, ParameterizedTypeReference<T> responseType) {
         return makeRequest(url, HttpMethod.GET, headers, null, responseType);
     }
 
     @Override
-    public <T> T postData(String url, HttpHeaders headers, Object body, Class<T> responseType) {
+    public <T> T postData(String url, HttpHeaders headers, Object body, ParameterizedTypeReference<T> responseType) {
         return makeRequest(url, HttpMethod.POST, headers, body, responseType);
     }
 
     @Override
-    public <T> T putData(String url, HttpHeaders headers, Object body, Class<T> responseType) {
+    public <T> T putData(String url, HttpHeaders headers, Object body, ParameterizedTypeReference<T> responseType) {
         return makeRequest(url, HttpMethod.PUT, headers, body, responseType);
     }
 
     @Override
     public void deleteData(String url, HttpHeaders headers) {
-        makeRequest(url, HttpMethod.DELETE, headers, null, Void.class);
+        makeRequest(url, HttpMethod.DELETE, headers, null, ResponseTypeFactory.createFor(Void.class));
     }
 
     @Override
-    public <T> T patchData(String url, HttpHeaders headers, Object body, Class<T> responseType) {
+    public <T> T patchData(String url, HttpHeaders headers, Object body, ParameterizedTypeReference<T> responseType) {
         return makeRequest(url, HttpMethod.PATCH, headers, body, responseType);
     }
 
-    private <T> T makeRequest(String url, HttpMethod method, HttpHeaders headers, Object body, Class<T> responseType) {
+    private <T> T makeRequest(String url, HttpMethod method, HttpHeaders headers, Object body, ParameterizedTypeReference<T> responseType) {
         try {
             HttpEntity<Object> entity = new HttpEntity<>(body, prepareHeaders(headers));
-            ResponseEntity<T> responseEntity = restTemplate.exchange(url, method, entity, responseType);
-            return responseEntity.getBody();
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, entity, String.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(responseEntity.getBody(), objectMapper.getTypeFactory().constructType(responseType.getType()));
         } catch (HttpStatusCodeException ex) {
             logger.error("Error during HTTP request: {} {}", method, url, ex);
             throw ex;
@@ -58,6 +62,7 @@ public class RestTemplateServiceImpl implements RestTemplateService {
             throw new RuntimeException("An unexpected error occurred while making the HTTP request", ex);
         }
     }
+
 
     private HttpHeaders prepareHeaders(HttpHeaders customHeaders) {
         HttpHeaders headers = new HttpHeaders();

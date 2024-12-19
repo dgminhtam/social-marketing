@@ -1,10 +1,10 @@
 package com.social.marketing.integration.marketingxanh.service;
 
-import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhResponse;
+import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhServiceResponse;
 
 import java.util.List;
 
 public interface MarketingxanhService {
 
-    List<MarketingxanhResponse> getServices();
+    List<MarketingxanhServiceResponse> getServices();
 }

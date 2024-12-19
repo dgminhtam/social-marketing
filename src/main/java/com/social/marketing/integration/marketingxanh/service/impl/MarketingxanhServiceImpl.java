@@ -1,13 +1,12 @@
 package com.social.marketing.integration.marketingxanh.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.social.marketing.integration.marketingxanh.configuration.MarketingxanhProperties;
-import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhResponse;
+import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhServiceResponse;
 import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
+import com.social.marketing.rest.factory.ResponseTypeFactory;
+import com.social.marketing.rest.service.RestTemplateService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -15,21 +14,14 @@ import java.util.List;
 public class MarketingxanhServiceImpl implements MarketingxanhService {
 
     @Resource
-    private RestTemplate restTemplate;
+    private RestTemplateService restTemplateService;
 
     @Resource
     private MarketingxanhProperties properties;
 
     @Override
-    public List<MarketingxanhResponse> getServices() {
+    public List<MarketingxanhServiceResponse> getServices() {
         String url = String.format("%s?key=%s&action=services", properties.getUrl(), properties.getKey());
-        try {
-            String jsonResponse = restTemplate.getForObject(url, String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(jsonResponse, new TypeReference<>() {
-            });
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch or parse data from API", e);
-        }
+        return restTemplateService.getData(url, null, ResponseTypeFactory.createForListOf(MarketingxanhServiceResponse.class));
     }
 }
