@@ -10,7 +10,7 @@ import com.social.marketing.integration.auth0.model.response.Auth0LoginResponse;
 import com.social.marketing.integration.auth0.model.response.Auth0SignupResponse;
 import com.social.marketing.integration.auth0.service.Auth0Service;
 import com.social.marketing.user.entity.User;
-import com.social.marketing.user.repository.UserRepository;
+import com.social.marketing.user.service.UserService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class AuthServiceImpl implements AuthService {
     private Auth0Service auth0Service;
 
     @Resource
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Override
     public void signup(SignupRequest request) {
@@ -33,12 +33,14 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.email());
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
+        user.setGender(request.gender());
         user.setExternalId(auth0SignupResponse.getId());
-        userRepository.save(user);
+        userService.save(user);
     }
 
     @Override
     public LoginResponse login(LoginRequest request) {
+        userService.getUserByEmail(request.email());
         Auth0LoginRequest auth0LoginRequest = new Auth0LoginRequest();
         auth0LoginRequest.setUsername(request.email());
         auth0LoginRequest.setPassword(request.password());

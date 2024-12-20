@@ -28,6 +28,9 @@ public class Auth0Aspect {
             if (request.getClientSecret() == null) {
                 request.setClientSecret(properties.getClientSecret());
             }
+            if (request.getScope() == null) {
+                request.setScope("openid profile email");
+            }
             if (request.getAudience() == null) {
                 request.setAudience(properties.getAudience());
             }
