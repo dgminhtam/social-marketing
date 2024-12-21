@@ -1,13 +1,13 @@
 package com.social.marketing.product.entity;
 
 import com.social.marketing.entity.AbstractEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldNameConstants;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -22,4 +22,14 @@ public class Category extends AbstractEntity {
 
     @Column(nullable = false)
     private String name;
+
+    @Column
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
+    @OneToMany(mappedBy = Fields.parent, fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Category> children = new ArrayList<>();
 }

@@ -55,6 +55,8 @@ public class ProductServiceImpl implements ProductService {
         productResponse.setDescription(product.getDescription());
         productResponse.setPrice(product.getPrice());
         productResponse.setName(product.getName());
+        productResponse.setMinOrderQuantity(product.getMinOrderQuantity());
+        productResponse.setMaxOrderQuantity(product.getMaxOrderQuantity());
         productResponse.setCategory(product.getCategory().getName());
         return productResponse;
     }

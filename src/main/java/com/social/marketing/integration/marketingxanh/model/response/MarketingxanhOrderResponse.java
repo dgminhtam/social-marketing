@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MarketingxanhServiceResponse {
+public class MarketingxanhOrderResponse {
 
     @JsonProperty("service")
     private String service;
@@ -25,10 +25,10 @@ public class MarketingxanhServiceResponse {
     private BigDecimal rate;
 
     @JsonProperty("min")
-    private Long min;
+    private String min;
 
     @JsonProperty("max")
-    private Long max;
+    private String max;
 
     @JsonProperty("type")
     private String type;

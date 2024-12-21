@@ -39,9 +39,25 @@ public class CategoryServiceImpl implements CategoryService {
         return new PageImpl<>(categoryResponses, categories.getPageable(), categories.getTotalElements());
     }
 
+    @Override
+    public List<CategoryResponse> getCategoryTree() {
+        Specification<Category> specification = (root, query, builder) ->
+                builder.isNull(root.get(Category.Fields.parent));
+        return categoryRepository.findAll(specification).stream().map(this::convert).toList();
+    }
+
+    @Override
+    public void save(Category category) {
+        categoryRepository.save(category);
+    }
+
     private CategoryResponse convert(Category category) {
         CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setId(category.getId());
         categoryResponse.setName(category.getName());
+        categoryResponse.setDescription(category.getDescription());
+        List<Category> children = category.getChildren();
+        categoryResponse.setChildren(children.stream().map(this::convert).toList());
         return categoryResponse;
     }
 }

@@ -27,6 +27,19 @@ public class Product extends AbstractEntity {
     @Column
     private BigDecimal price;
 
+    @Column
+    private BigDecimal originPrice;
+
+    @Column
+    private Long maxOrderQuantity;
+
+    @Column
+    private Long minOrderQuantity;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductStatus status = ProductStatus.DRAFT;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;

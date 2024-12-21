@@ -13,5 +13,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
+    private Long maxOrderQuantity;
+    private Long minOrderQuantity;
     private String category;
 }
