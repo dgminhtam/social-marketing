@@ -12,10 +12,17 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(name = "orders")
+@Table(name = "orders",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "code")
+        }
+)
 @FieldNameConstants
 public class Order extends AbstractEntity {
-    
+
+    @Column
+    private String code;
+
     @Column
     private String email;
 

@@ -2,16 +2,16 @@ spring:
   application:
     name: social-marketing
   datasource:
-    url: jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
-    username: postgres.qjyhlzrusxqshwokhmjf
-    password: nxPgExHcVRDAubcZ
+    url: jdbc:postgresql://ep-lively-meadow-a1kdv5gu-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+    username: neondb_owner
+    password: JGg8wmKpFU5P
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
-      idle-timeout: 30000
-      connection-timeout: 30000
+      idle-timeout: 60000
       max-lifetime: 1800000
+      pool-name: NeonDBPool
   jpa:
     hibernate:
       ddl-auto: update

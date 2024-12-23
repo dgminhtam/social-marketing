@@ -27,7 +27,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> search(Specification<Product> specification, Pageable pageable) {
+    public Page<ProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {
         Page<Product> products = productRepository.findAll(specification, pageable);
         List<ProductResponse> productResponses = products.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(productResponses, products.getPageable(), products.getTotalElements());
@@ -37,7 +37,16 @@ public class ProductServiceImpl implements ProductService {
     public Product get(Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (product.isEmpty()) {
-            throw new NotFoundException("Product not found");
+            throw new NotFoundException("Product not found.");
+        }
+        return product.get();
+    }
+
+    @Override
+    public Product getBySku(String sku) {
+        Optional<Product> product = productRepository.findBySku(sku);
+        if (product.isEmpty()) {
+            throw new NotFoundException("Product not found.");
         }
         return product.get();
     }
@@ -49,7 +58,8 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll(specification);
     }
 
-    private ProductResponse convert(Product product) {
+    @Override
+    public ProductResponse convert(Product product) {
         ProductResponse productResponse = new ProductResponse();
         productResponse.setSku(product.getSku());
         productResponse.setDescription(product.getDescription());

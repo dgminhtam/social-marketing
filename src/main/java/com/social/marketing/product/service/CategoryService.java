@@ -17,8 +17,6 @@ public interface CategoryService {
 
     Page<CategoryResponse> getCategories(Specification<Category> specification, Pageable pageable);
 
-    List<CategoryResponse> getCategoryTree();
-
     void save(Category rootCategory);
 }
 

@@ -12,9 +12,9 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,46 +41,60 @@ public class InitialData {
                 .collect(Collectors.groupingBy(
                         response -> response.getCategory().split("\\|")[1].toUpperCase().trim(),
                         Collectors.groupingBy(MarketingxanhServiceResponse::getCategory)));
-
         Map<String, Category> rootCategoriesExited = categoryService.getAllByNames(data.keySet())
                 .stream()
                 .collect(Collectors.toMap(Category::getName, Function.identity()));
+
+        List<Category> rootCategories = new ArrayList<>();
         data.forEach((rootCategoryName, categoryMap) -> {
             Category rootCategory = rootCategoriesExited.get(rootCategoryName);
             if (Objects.isNull(rootCategory)) {
                 rootCategory = new Category();
                 rootCategory.setName(rootCategoryName);
                 rootCategory.setDescription("View all services of " + rootCategoryName);
-                categoryService.save(rootCategory);
-                handleCategory(categoryMap, rootCategory);
+                rootCategories.add(rootCategory);
             }
         });
+        if (CollectionUtils.isNotEmpty(rootCategories)) {
+            categoryService.saveAll(rootCategories);
+        }
+        List<Product> products = new ArrayList<>();
+        rootCategories.forEach(category -> {
+            Map<String, List<MarketingxanhServiceResponse>> categoryMap = data.get(category.getName());
+            products.addAll(handleBaseProduct(categoryMap, category));
+        });
+        if (CollectionUtils.isNotEmpty(rootCategories)) {
+            productService.saveAll(products);
+        }
     }
 
-    private void handleCategory(Map<String, List<MarketingxanhServiceResponse>> categoryMap,
-                                Category rootCategory) {
-        Map<String, Category> existingCategoryMap = categoryService.getAllByNames(categoryMap.keySet())
+    private List<Product> handleBaseProduct(Map<String, List<MarketingxanhServiceResponse>> data, Category category) {
+        Map<String, Product> exitBaseProductMap = productService.getAllBySkus(data.keySet().stream().toList())
                 .stream()
-                .collect(Collectors.toMap(Category::getName, Function.identity()));
-        categoryMap.forEach((categoryName, productsResponse) -> {
-            if (!existingCategoryMap.containsKey(categoryName)) {
-                Category category = new Category();
-                category.setName(categoryName);
-                category.setDescription(categoryName);
-                category.setParent(rootCategory);
-                categoryService.save(category);
-                handleProduct(productsResponse, category);
-            }
-        });
+                .collect(Collectors.toMap(Product::getName, Function.identity()));
 
+        List<Product> products = new ArrayList<>();
+        data.forEach((name, variants) -> {
+            Product product = exitBaseProductMap.get(name);
+            if (Objects.isNull(product)) {
+                product = new Product();
+                product.setSku(UUID.randomUUID().toString());
+                product.setCategory(category);
+            }
+            product.setName(name);
+            product.setDescription("Base product for " + name);
+            product.setVariants(handleVariantProduct(variants, category, product));
+            products.add(product);
+        });
+        return products;
     }
 
-    private void handleProduct(List<MarketingxanhServiceResponse> source, Category category) {
-        if (CollectionUtils.isEmpty(source) || Objects.isNull(category)) {
-            return;
+    private List<Product> handleVariantProduct(List<MarketingxanhServiceResponse> data, Category category, Product base) {
+        if (CollectionUtils.isEmpty(data) || Objects.isNull(category)) {
+            return Collections.emptyList();
         }
 
-        List<String> skus = source.stream()
+        List<String> skus = data.stream()
                 .map(MarketingxanhServiceResponse::getService)
                 .filter(Objects::nonNull)
                 .toList();
@@ -88,27 +102,27 @@ public class InitialData {
         Map<String, Product> existingProductMap = productService.getAllBySkus(skus).stream()
                 .collect(Collectors.toMap(Product::getSku, Function.identity()));
 
-        List<Product> products = source.stream()
-                .map(response -> createOrUpdateProduct(response, category, existingProductMap))
+        return data.stream()
+                .map(response -> createOrUpdateProduct(response, category, existingProductMap, base))
                 .toList();
-
-        productService.saveAll(products);
     }
 
     private Product createOrUpdateProduct(MarketingxanhServiceResponse response,
                                           Category category,
-                                          Map<String, Product> existingProductMap) {
+                                          Map<String, Product> existingProductMap, Product base) {
         Product product = existingProductMap.get(response.getService());
         if (Objects.isNull(product)) {
             product = new Product();
-            product.setSku(response.getService());
+            product.setSku(UUID.randomUUID().toString());
             product.setCategory(category);
         }
         product.setName(response.getName());
-        product.setOriginPrice(response.getRate());
+        product.setOriginPrice(response.getRate().divide(BigDecimal.valueOf(1000), 0, RoundingMode.CEILING));
         product.setDescription(response.getDesc());
         product.setMinOrderQuantity(response.getMin());
         product.setMaxOrderQuantity(response.getMax());
+        product.setExternalId(response.getService());
+        product.setBase(base);
         return product;
     }
 

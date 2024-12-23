@@ -40,13 +40,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> getCategoryTree() {
-        Specification<Category> specification = (root, query, builder) ->
-                builder.isNull(root.get(Category.Fields.parent));
-        return categoryRepository.findAll(specification).stream().map(this::convert).toList();
-    }
-
-    @Override
     public void save(Category category) {
         categoryRepository.save(category);
     }

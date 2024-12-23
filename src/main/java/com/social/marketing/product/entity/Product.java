@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -40,7 +42,17 @@ public class Product extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private ProductStatus status = ProductStatus.DRAFT;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "base_id")
+    private Product base;
+
+    @OneToMany(mappedBy = Fields.base, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Product> variants = new ArrayList<>();
+
+    @Column
+    private String externalId;
 }

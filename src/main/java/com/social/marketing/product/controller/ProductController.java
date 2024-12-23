@@ -20,7 +20,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public Page<ProductResponse> search(@Search Specification<Product> specification, Pageable pageable) {
-        return productService.search(specification, pageable);
+    public Page<ProductResponse> getProducts(@Search Specification<Product> specification, Pageable pageable) {
+        return productService.getProducts(specification, pageable);
     }
 }

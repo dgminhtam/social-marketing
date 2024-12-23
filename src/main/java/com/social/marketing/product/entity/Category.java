@@ -26,10 +26,13 @@ public class Category extends AbstractEntity {
     @Column
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column
+    private String imageUrl;
+
+    @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = Fields.parent, fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = Fields.parent, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Category> children = new ArrayList<>();
 }

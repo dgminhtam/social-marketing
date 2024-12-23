@@ -12,19 +12,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/categories")
 public class CategoryController {
 
     @Resource
     private CategoryService categoryService;
-
-    @GetMapping("/tree")
-    public List<CategoryResponse> getCategoryTree() {
-        return categoryService.getCategoryTree();
-    }
 
     @GetMapping
     public Page<CategoryResponse> getCategories(@Search Specification<Category> specification, Pageable pageable) {

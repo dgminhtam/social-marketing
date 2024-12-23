@@ -12,9 +12,13 @@ public interface ProductService {
 
     void saveAll(List<Product> products);
 
-    Page<ProductResponse> search(Specification<Product> specification, Pageable pageable);
+    Page<ProductResponse> getProducts(Specification<Product> specification, Pageable pageable);
 
     Product get(Long id);
 
     List<Product> getAllBySkus(List<String> skus);
+
+    Product getBySku(String sku);
+
+    ProductResponse convert(Product product);
 }
