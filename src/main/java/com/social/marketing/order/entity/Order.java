@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -42,6 +44,9 @@ public class Order extends AbstractEntity {
     @Column
     private BigDecimal subTotal;
 
-    @Column(unique = true, nullable = false)
+    @OneToMany(mappedBy = PaymentTransaction.Fields.order, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+
+    @Column
     private String externalId;
 }

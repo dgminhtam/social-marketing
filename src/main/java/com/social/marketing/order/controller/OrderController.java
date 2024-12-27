@@ -3,6 +3,7 @@ package com.social.marketing.order.controller;
 import com.social.marketing.order.entity.Order;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
+import com.social.marketing.order.model.response.PaymentResponse;
 import com.social.marketing.order.service.OrderService;
 import com.social.marketing.search.anotation.Search;
 import jakarta.annotation.Resource;
@@ -21,6 +22,11 @@ public class OrderController {
     @PostMapping("/place-order")
     public OrderResponse placeOrder(@RequestBody PlaceOrderRequest request) {
         return orderService.placeOrder(request);
+    }
+
+    @PostMapping("/{code}/request-payment")
+    public PaymentResponse requestPayment(@PathVariable String code) {
+        return orderService.requestPayment(code);
     }
 
     @GetMapping

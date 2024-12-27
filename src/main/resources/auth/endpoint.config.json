@@ -3,6 +3,9 @@
     "/auth/signup",
     "/auth/login",
     "/categories",
-    "/products"
+    "/products",
+    "/products/**",
+    "/orders",
+    "/orders/**"
   ]
 }

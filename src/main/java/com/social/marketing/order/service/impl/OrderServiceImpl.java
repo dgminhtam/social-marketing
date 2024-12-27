@@ -1,9 +1,17 @@
 package com.social.marketing.order.service.impl;
 
 import com.social.marketing.exception.BadRequestException;
+import com.social.marketing.exception.NotFoundException;
+import com.social.marketing.integration.payos.model.request.PayOSRequestPaymentRequest;
+import com.social.marketing.integration.payos.model.response.PayOSRequestPaymentResponse;
+import com.social.marketing.integration.payos.service.PayOSService;
+import com.social.marketing.integration.payos.service.PayOSTransactionService;
 import com.social.marketing.order.entity.Order;
+import com.social.marketing.order.entity.OrderStatus;
+import com.social.marketing.order.entity.PaymentTransaction;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
+import com.social.marketing.order.model.response.PaymentResponse;
 import com.social.marketing.order.repository.OrderRepository;
 import com.social.marketing.order.service.OrderService;
 import com.social.marketing.product.entity.Product;
@@ -19,6 +27,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -29,6 +39,12 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private OrderRepository orderRepository;
 
+    @Resource
+    private PayOSTransactionService payOSTransactionService;
+
+    @Resource
+    private PayOSService payOSService;
+
     @Override
     @Transactional
     public OrderResponse placeOrder(PlaceOrderRequest request) {
@@ -37,10 +53,12 @@ public class OrderServiceImpl implements OrderService {
         }
         Product product = productService.getBySku(request.sku());
         Order order = new Order();
+        order.setCode(UUID.randomUUID().toString());
         order.setProduct(product);
         order.setQuantity(request.quantity());
         order.setEmail(request.email());
         order.setDescription(request.description());
+        order.setOrderStatus(OrderStatus.OPEN);
         BigDecimal price = product.getPrice();
         if (Objects.isNull(price)) {
             throw new BadRequestException("Product price cannot be null.");
@@ -66,5 +84,49 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orders = orderRepository.findAll(specification, pageable);
         List<OrderResponse> orderResponses = orders.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(orderResponses, orders.getPageable(), orders.getTotalElements());
+    }
+
+    @Override
+    public Order getOrderByCode(String code) {
+        Optional<Order> orderOpt = orderRepository.findByCode(code);
+        if (orderOpt.isEmpty()) {
+            throw new NotFoundException("Order not found.");
+        }
+        return orderOpt.get();
+    }
+
+    @Override
+    public PaymentResponse requestPayment(String code) {
+        Order order = getOrderByCode(code);
+        PayOSRequestPaymentRequest paymentRequest = new PayOSRequestPaymentRequest();
+        paymentRequest.setOrderCode(order.getId());
+        paymentRequest.setAmount(order.getSubTotal().intValue());
+        paymentRequest.setDescription(order.getId().toString());
+        PayOSRequestPaymentResponse response = payOSService.requestPayment(paymentRequest);
+        PaymentTransaction paymentTransaction = buildPaymentTransaction(response, order);
+        order.getPaymentTransactions().add(paymentTransaction);
+        orderRepository.save(order);
+        return convertPaymentResponse(response);
+    }
+
+    private PaymentTransaction buildPaymentTransaction(PayOSRequestPaymentResponse response, Order order) {
+        PaymentTransaction paymentTransaction = new PaymentTransaction();
+        paymentTransaction.setBin(response.getData().getBin());
+        paymentTransaction.setAccountNumber(response.getData().getAccountNumber());
+        paymentTransaction.setAccountName(response.getData().getAccountName());
+        paymentTransaction.setAmount(BigDecimal.valueOf(response.getData().getAmount()));
+        paymentTransaction.setDescription(response.getData().getDescription());
+        paymentTransaction.setCurrencyCode(response.getData().getCurrency());
+        paymentTransaction.setStatus(response.getData().getStatus());
+        paymentTransaction.setCheckoutUrl(response.getData().getCheckoutUrl());
+        paymentTransaction.setQrCode(response.getData().getQrCode());
+        paymentTransaction.setOrder(order);
+        return paymentTransaction;
+    }
+
+    private PaymentResponse convertPaymentResponse(PayOSRequestPaymentResponse payOSRequestPaymentResponse) {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setCheckoutUrl(payOSRequestPaymentResponse.getData().getCheckoutUrl());
+        return paymentResponse;
     }
 }

@@ -121,6 +121,9 @@ public class InitialData {
         product.setDescription(response.getDesc());
         product.setMinOrderQuantity(response.getMin());
         product.setMaxOrderQuantity(response.getMax());
+        product.setPrice(response.getRate()
+                .divide(BigDecimal.valueOf(1000), 0, RoundingMode.CEILING)
+                .multiply(BigDecimal.valueOf(10)));
         product.setExternalId(response.getService());
         product.setBase(base);
         return product;

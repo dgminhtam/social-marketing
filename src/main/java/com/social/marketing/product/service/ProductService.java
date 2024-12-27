@@ -1,6 +1,7 @@
 package com.social.marketing.product.service;
 
 import com.social.marketing.product.entity.Product;
+import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +22,8 @@ public interface ProductService {
     Product getBySku(String sku);
 
     ProductResponse convert(Product product);
+
+    ProductDetailResponse getProductBySku(String sku);
+
+    ProductDetailResponse convertDetail(Product product);
 }

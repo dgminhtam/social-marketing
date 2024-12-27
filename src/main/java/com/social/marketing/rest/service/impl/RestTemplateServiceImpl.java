@@ -23,6 +23,9 @@ public class RestTemplateServiceImpl implements RestTemplateService {
     @Resource
     private RestTemplate restTemplate;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
     @Override
     public <T> T getData(String url, HttpHeaders headers, ParameterizedTypeReference<T> responseType) {
         return makeRequest(url, HttpMethod.GET, headers, null, responseType);
@@ -52,7 +55,6 @@ public class RestTemplateServiceImpl implements RestTemplateService {
         try {
             HttpEntity<Object> entity = new HttpEntity<>(body, prepareHeaders(headers));
             ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, entity, String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(responseEntity.getBody(), objectMapper.getTypeFactory().constructType(responseType.getType()));
         } catch (HttpStatusCodeException ex) {
             logger.error("Error during HTTP request: {} {}", method, url, ex);
