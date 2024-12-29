@@ -15,20 +15,30 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfiguration {
 
     @Resource
-    private EndpointConfigProperties endpointConfigProperties;
+    private SecurityProperties securityProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(endpointConfigProperties.getPublicEndpoints().toArray(new String[0])).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .cors(withDefaults())
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(withDefaults())
-                )
-                .build();
+        if (securityProperties.isEnabled()) {
+            return http
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests((authorize) -> authorize
+                            .requestMatchers(securityProperties.getPublicEndpoints()).permitAll()
+                            .anyRequest().authenticated()
+                    )
+                    .cors(withDefaults())
+                    .oauth2ResourceServer(oauth2 -> oauth2
+                            .jwt(withDefaults())
+                    )
+                    .build();
+        } else {
+            return http
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests((authorize) -> authorize
+                            .anyRequest().permitAll()
+                    )
+                    .cors(withDefaults())
+                    .build();
+        }
     }
 }

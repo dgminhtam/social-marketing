@@ -62,15 +62,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse convert(Product product) {
-        ProductResponse productResponse = new ProductResponse();
-        productResponse.setSku(product.getSku());
-        productResponse.setDescription(product.getDescription());
-        productResponse.setPrice(product.getPrice());
-        productResponse.setName(product.getName());
-        productResponse.setMinOrderQuantity(product.getMinOrderQuantity());
-        productResponse.setMaxOrderQuantity(product.getMaxOrderQuantity());
-        productResponse.setCategory(product.getCategory().getName());
-        return productResponse;
+        ProductResponse response = new ProductResponse();
+        response.setSku(product.getSku());
+        response.setDescription(product.getDescription());
+        response.setPrice(product.getPrice());
+        response.setName(product.getName());
+        response.setMinOrderQuantity(product.getMinOrderQuantity());
+        response.setMaxOrderQuantity(product.getMaxOrderQuantity());
+        response.setMainImage(product.getMainImage());
+        response.setCategory(product.getCategory().getName());
+        return response;
     }
 
     @Override
@@ -88,6 +89,7 @@ public class ProductServiceImpl implements ProductService {
         response.setPrice(product.getPrice());
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
+        response.setMainImage(product.getMainImage());
         response.setCategory(product.getCategory().getName());
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {

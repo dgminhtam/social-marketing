@@ -15,5 +15,6 @@ public class ProductResponse {
     private BigDecimal price;
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
+    private String mainImage;
     private String category;
 }

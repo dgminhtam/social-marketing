@@ -2,6 +2,7 @@ package com.social.marketing.order.controller;
 
 import com.social.marketing.order.entity.Order;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
+import com.social.marketing.order.model.response.OrderDetailResponse;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.model.response.PaymentResponse;
 import com.social.marketing.order.service.OrderService;
@@ -19,7 +20,7 @@ public class OrderController {
     @Resource
     private OrderService orderService;
 
-    @PostMapping("/place-order")
+    @PostMapping
     public OrderResponse placeOrder(@RequestBody PlaceOrderRequest request) {
         return orderService.placeOrder(request);
     }
@@ -29,8 +30,13 @@ public class OrderController {
         return orderService.requestPayment(code);
     }
 
-    @GetMapping
-    public Page<OrderResponse> getOrders(@Search Specification<Order> specification, Pageable pageable) {
-        return orderService.getOrders(specification, pageable);
+    @GetMapping("/{code}")
+    public OrderDetailResponse getOrderDetail(@PathVariable String code) {
+        return orderService.getOrderDetail(code);
+    }
+
+    @GetMapping("/by-email/{email}")
+    public Page<OrderResponse> getOrders(@PathVariable String email, @Search Specification<Order> specification, Pageable pageable) {
+        return orderService.getOrdersByEmail(email, specification, pageable);
     }
 }

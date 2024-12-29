@@ -20,4 +20,6 @@ public class PayOSProperties {
     private String cancelUrl;
 
     private String returnUrl;
+
+    private long expiredAt;
 }

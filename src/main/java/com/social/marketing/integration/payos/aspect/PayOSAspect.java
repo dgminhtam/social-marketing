@@ -9,6 +9,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +34,7 @@ public class PayOSAspect {
         signatureMap.put("returnUrl", properties.getReturnUrl());
         request.setCancelUrl(properties.getCancelUrl());
         request.setReturnUrl(properties.getReturnUrl());
+        request.setExpiredAt(LocalDateTime.now().plusMinutes(properties.getExpiredAt()).toEpochSecond(ZoneOffset.UTC));
         request.setSignature(payOSTransactionService.generateSignature(signatureMap));
     }
 

@@ -5,11 +5,11 @@ import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.integration.payos.model.request.PayOSRequestPaymentRequest;
 import com.social.marketing.integration.payos.model.response.PayOSRequestPaymentResponse;
 import com.social.marketing.integration.payos.service.PayOSService;
-import com.social.marketing.integration.payos.service.PayOSTransactionService;
 import com.social.marketing.order.entity.Order;
 import com.social.marketing.order.entity.OrderStatus;
 import com.social.marketing.order.entity.PaymentTransaction;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
+import com.social.marketing.order.model.response.OrderDetailResponse;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.model.response.PaymentResponse;
 import com.social.marketing.order.repository.OrderRepository;
@@ -38,9 +38,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Resource
     private OrderRepository orderRepository;
-
-    @Resource
-    private PayOSTransactionService payOSTransactionService;
 
     @Resource
     private PayOSService payOSService;
@@ -74,7 +71,6 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setOrderStatus(order.getOrderStatus());
         orderResponse.setCode(order.getCode());
         orderResponse.setDescription(order.getDescription());
-        orderResponse.setProduct(productService.convert(order.getProduct()));
         orderResponse.setSubTotal(order.getSubTotal());
         return orderResponse;
     }
@@ -109,6 +105,20 @@ public class OrderServiceImpl implements OrderService {
         return convertPaymentResponse(response);
     }
 
+    @Override
+    public OrderDetailResponse getOrderDetail(String code) {
+        return null;
+    }
+
+    @Override
+    public Page<OrderResponse> getOrdersByEmail(String email, Specification<Order> specification, Pageable pageable) {
+        Specification<Order> spec = (root, query, builder)
+                -> builder.equal(root.get(Order.Fields.email), email);
+        Page<Order> orders = orderRepository.findAll(spec.and(specification), pageable);
+        List<OrderResponse> orderResponses = orders.getContent().stream().map(this::convert).toList();
+        return new PageImpl<>(orderResponses, orders.getPageable(), orders.getTotalElements());
+    }
+
     private PaymentTransaction buildPaymentTransaction(PayOSRequestPaymentResponse response, Order order) {
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setBin(response.getData().getBin());
@@ -120,6 +130,7 @@ public class OrderServiceImpl implements OrderService {
         paymentTransaction.setStatus(response.getData().getStatus());
         paymentTransaction.setCheckoutUrl(response.getData().getCheckoutUrl());
         paymentTransaction.setQrCode(response.getData().getQrCode());
+        paymentTransaction.setExternalId(response.getData().getPaymentLinkId());
         paymentTransaction.setOrder(order);
         return paymentTransaction;
     }

@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 public class OrderResponse {
     private String code;
     private String description;
-    private ProductResponse product;
     private OrderStatus orderStatus;
     private BigDecimal subTotal;
 }

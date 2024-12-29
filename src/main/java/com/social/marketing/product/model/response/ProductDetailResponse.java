@@ -17,6 +17,7 @@ public class ProductDetailResponse {
     private BigDecimal price;
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
+    private String mainImage;
     private String category;
     private List<ProductDetailResponse> variants;
 }

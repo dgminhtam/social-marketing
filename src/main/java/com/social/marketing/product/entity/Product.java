@@ -38,6 +38,9 @@ public class Product extends AbstractEntity {
     @Column
     private Long minOrderQuantity;
 
+    @Column
+    private String mainImage;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductStatus status = ProductStatus.DRAFT;
