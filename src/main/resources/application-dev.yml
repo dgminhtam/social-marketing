@@ -39,3 +39,4 @@ payos:
   cancel-url: http://localhost:3000/orders
   return-url: http://localhost:3000/orders
   expired-at: 10
+  client-web-hook: https://webhooks-dev.digicommerce.cloud:3012/ws

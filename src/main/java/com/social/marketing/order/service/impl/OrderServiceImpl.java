@@ -83,6 +83,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Order getOrderById(Long id) {
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            throw new NotFoundException("Order not found.");
+        }
+        return orderOpt.get();
+    }
+
+    @Override
     public Order getOrderByCode(String code) {
         Optional<Order> orderOpt = orderRepository.findByCode(code);
         if (orderOpt.isEmpty()) {
@@ -117,6 +126,11 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orders = orderRepository.findAll(spec.and(specification), pageable);
         List<OrderResponse> orderResponses = orders.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(orderResponses, orders.getPageable(), orders.getTotalElements());
+    }
+
+    @Override
+    public void save(Order order) {
+        orderRepository.save(order);
     }
 
     private PaymentTransaction buildPaymentTransaction(PayOSRequestPaymentResponse response, Order order) {

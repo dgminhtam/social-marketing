@@ -22,4 +22,8 @@ public class PayOSProperties {
     private String returnUrl;
 
     private long expiredAt;
+
+    private String clientWebHook;
+
+
 }

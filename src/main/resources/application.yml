@@ -3,6 +3,6 @@ spring:
     name: social-marketing
 
 security:
-  enabled: false
+  enabled: true
   publicEndpoint:
     location: /auth/endpoint.config.json

@@ -39,4 +39,9 @@ public class OrderController {
     public Page<OrderResponse> getOrders(@PathVariable String email, @Search Specification<Order> specification, Pageable pageable) {
         return orderService.getOrdersByEmail(email, specification, pageable);
     }
+
+    @GetMapping
+    public Page<OrderResponse> getOrders(@Search Specification<Order> specification, Pageable pageable) {
+        return orderService.getOrders(specification, pageable);
+    }
 }

@@ -17,6 +17,8 @@ public interface OrderService {
 
     Page<OrderResponse> getOrders(Specification<Order> specification, Pageable pageable);
 
+    Order getOrderById(Long id);
+
     Order getOrderByCode(String code);
 
     PaymentResponse requestPayment(String code);
@@ -24,4 +26,6 @@ public interface OrderService {
     OrderDetailResponse getOrderDetail(String code);
 
     Page<OrderResponse> getOrdersByEmail(String email, Specification<Order> specification, Pageable pageable);
+
+    void save(Order order);
 }
