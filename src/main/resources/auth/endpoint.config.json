@@ -1,9 +1,4 @@
 [
-    "/auth/signup",
     "/auth/login",
-    "/categories",
-    "/products",
-    "/products/**",
-    "/orders",
-    "/orders/**"
+    "/client/**"
 ]
