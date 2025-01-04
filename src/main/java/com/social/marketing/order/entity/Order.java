@@ -14,16 +14,9 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "orders",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = "code")
-        }
-)
+@Table(name = "orders")
 @FieldNameConstants
 public class Order extends AbstractEntity {
-
-    @Column
-    private String code;
 
     @Column
     private String email;

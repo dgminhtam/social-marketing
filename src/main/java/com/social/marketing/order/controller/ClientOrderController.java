@@ -2,7 +2,6 @@ package com.social.marketing.order.controller;
 
 import com.social.marketing.order.entity.Order;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
-import com.social.marketing.order.model.response.OrderDetailResponse;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.model.response.PaymentResponse;
 import com.social.marketing.order.service.OrderService;
@@ -25,14 +24,9 @@ public class ClientOrderController {
         return orderService.placeOrder(request);
     }
 
-    @PostMapping("/{code}/request-payment")
-    public PaymentResponse requestPayment(@PathVariable String code) {
-        return orderService.requestPayment(code);
-    }
-
-    @GetMapping("/{code}")
-    public OrderDetailResponse getOrderDetail(@PathVariable String code) {
-        return orderService.getOrderDetail(code);
+    @PostMapping("/{id}/request-payment")
+    public PaymentResponse requestPayment(@PathVariable Long id) {
+        return orderService.requestPayment(id);
     }
 
     @GetMapping("/by-email/{email}")

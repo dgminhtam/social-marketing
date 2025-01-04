@@ -2,7 +2,6 @@ package com.social.marketing.order.service;
 
 import com.social.marketing.order.entity.Order;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
-import com.social.marketing.order.model.response.OrderDetailResponse;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.model.response.PaymentResponse;
 import org.springframework.data.domain.Page;
@@ -19,11 +18,7 @@ public interface OrderService {
 
     Order getOrderById(Long id);
 
-    Order getOrderByCode(String code);
-
-    PaymentResponse requestPayment(String code);
-
-    OrderDetailResponse getOrderDetail(String code);
+    PaymentResponse requestPayment(Long id);
 
     Page<OrderResponse> getOrdersByEmail(String email, Specification<Order> specification, Pageable pageable);
 

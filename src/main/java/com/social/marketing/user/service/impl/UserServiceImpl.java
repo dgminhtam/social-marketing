@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getCurrentUser() {
         Auth0UserInfoResponse response = auth0Service.userInfo();
         User user = getUserByEmail(response.getEmail());
-        return convert(user);
+        return convert(user, response);
     }
 
     @Override
@@ -33,11 +33,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User save(User user) {
-        return userRepository.save(user);
+    public void save(User user) {
+        userRepository.save(user);
     }
 
-    private UserResponse convert(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getGender());
+    @Override
+    public void initUsers() {
+        User user = new User();
+        user.setEmail("tamduong633@gmail.com");
+    }
+
+    private UserResponse convert(User user, Auth0UserInfoResponse response) {
+        return new UserResponse(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getGender(), response.getPicture());
     }
 }

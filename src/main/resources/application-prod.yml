@@ -31,9 +31,8 @@ okta:
     issuer: https://dev-khdq8r1qzh4hxf7o.us.auth0.com/
     audience: https://social-marketing.com
 
-public:
-  endpoints:
-    location: /auth/endpoint.config.json
+init:
+  management-audience: https://dev-khdq8r1qzh4hxf7o.us.auth0.com/api/v2/
 
 payos:
   client-id: 256bacb9-f155-47bc-9d69-355c864bd01d

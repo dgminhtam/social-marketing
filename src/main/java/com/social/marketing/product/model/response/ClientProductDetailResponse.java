@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProductDetailResponse {
+public class ClientProductDetailResponse {
 
     private String sku;
     private String name;
@@ -19,5 +19,7 @@ public class ProductDetailResponse {
     private Long minOrderQuantity;
     private String mainImage;
     private String category;
-    private List<ProductDetailResponse> variants;
+    private List<ClientProductDetailResponse> variants;
+    private BigDecimal lowPrice;
+    private BigDecimal highPrice;
 }

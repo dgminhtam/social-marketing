@@ -9,13 +9,12 @@ import com.social.marketing.order.entity.Order;
 import com.social.marketing.order.entity.OrderStatus;
 import com.social.marketing.order.entity.PaymentTransaction;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
-import com.social.marketing.order.model.response.OrderDetailResponse;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.model.response.PaymentResponse;
 import com.social.marketing.order.repository.OrderRepository;
 import com.social.marketing.order.service.OrderService;
 import com.social.marketing.product.entity.Product;
-import com.social.marketing.product.service.ProductService;
+import com.social.marketing.product.service.ClientProductService;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -28,13 +27,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
     @Resource
-    private ProductService productService;
+    private ClientProductService productService;
 
     @Resource
     private OrderRepository orderRepository;
@@ -50,7 +48,6 @@ public class OrderServiceImpl implements OrderService {
         }
         Product product = productService.getBySku(request.sku());
         Order order = new Order();
-        order.setCode(UUID.randomUUID().toString());
         order.setProduct(product);
         order.setQuantity(request.quantity());
         order.setEmail(request.email());
@@ -69,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse convert(Order order) {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setOrderStatus(order.getOrderStatus());
-        orderResponse.setCode(order.getCode());
+        orderResponse.setId(order.getId());
         orderResponse.setDescription(order.getDescription());
         orderResponse.setSubTotal(order.getSubTotal());
         return orderResponse;
@@ -92,17 +89,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getOrderByCode(String code) {
-        Optional<Order> orderOpt = orderRepository.findByCode(code);
-        if (orderOpt.isEmpty()) {
-            throw new NotFoundException("Order not found.");
-        }
-        return orderOpt.get();
-    }
-
-    @Override
-    public PaymentResponse requestPayment(String code) {
-        Order order = getOrderByCode(code);
+    public PaymentResponse requestPayment(Long id) {
+        Order order = getOrderById(id);
         PayOSRequestPaymentRequest paymentRequest = new PayOSRequestPaymentRequest();
         paymentRequest.setOrderCode(order.getId());
         paymentRequest.setAmount(order.getSubTotal().intValue());
@@ -115,14 +103,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDetailResponse getOrderDetail(String code) {
-        return null;
-    }
-
-    @Override
     public Page<OrderResponse> getOrdersByEmail(String email, Specification<Order> specification, Pageable pageable) {
-        Specification<Order> spec = (root, query, builder)
-                -> builder.equal(root.get(Order.Fields.email), email);
+        Specification<Order> spec =
+                (root, query, builder) -> builder.equal(root.get(Order.Fields.email), email);
         Page<Order> orders = orderRepository.findAll(spec.and(specification), pageable);
         List<OrderResponse> orderResponses = orders.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(orderResponses, orders.getPageable(), orders.getTotalElements());

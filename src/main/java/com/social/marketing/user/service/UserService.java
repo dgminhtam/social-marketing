@@ -9,5 +9,7 @@ public interface UserService {
 
     User getUserByEmail(String email);
 
-    User save(User user);
+    void save(User user);
+
+    void initUsers();
 }

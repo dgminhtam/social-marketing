@@ -5,7 +5,7 @@ import com.social.marketing.integration.marketingxanh.service.MarketingxanhServi
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
 import com.social.marketing.product.service.CategoryService;
-import com.social.marketing.product.service.ProductService;
+import com.social.marketing.product.service.ClientProductService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
@@ -28,7 +28,7 @@ public class InitialData {
     private CategoryService categoryService;
 
     @Resource
-    private ProductService productService;
+    private ClientProductService productService;
 
     @PostConstruct
     @Transactional
@@ -103,6 +103,7 @@ public class InitialData {
                 .collect(Collectors.toMap(Product::getSku, Function.identity()));
 
         return data.stream()
+                .filter(response -> Objects.nonNull(response.getRate()) && !BigDecimal.ZERO.equals(response.getRate()))
                 .map(response -> createOrUpdateProduct(response, category, existingProductMap, base))
                 .toList();
     }

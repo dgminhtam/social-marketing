@@ -1,7 +1,7 @@
 package com.social.marketing.product.service.impl;
 
 import com.social.marketing.product.entity.Category;
-import com.social.marketing.product.model.response.CategoryResponse;
+import com.social.marketing.product.model.response.ClientCategoryResponse;
 import com.social.marketing.product.repository.CategoryRepository;
 import com.social.marketing.product.service.CategoryService;
 import jakarta.annotation.Resource;
@@ -21,8 +21,8 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
 
     @Override
-    public List<Category> saveAll(List<Category> categories) {
-        return categoryRepository.saveAll(categories);
+    public void saveAll(List<Category> categories) {
+        categoryRepository.saveAll(categories);
     }
 
     @Override
@@ -33,10 +33,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Page<CategoryResponse> getCategories(Specification<Category> specification, Pageable pageable) {
+    public Page<ClientCategoryResponse> getCategories(Specification<Category> specification, Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(specification, pageable);
-        List<CategoryResponse> categoryResponses = categories.getContent().stream().map(this::convert).toList();
-        return new PageImpl<>(categoryResponses, categories.getPageable(), categories.getTotalElements());
+        List<ClientCategoryResponse> clientCategoryResponses = categories.getContent().stream().map(this::convert).toList();
+        return new PageImpl<>(clientCategoryResponses, categories.getPageable(), categories.getTotalElements());
     }
 
     @Override
@@ -44,13 +44,19 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(category);
     }
 
-    private CategoryResponse convert(Category category) {
-        CategoryResponse categoryResponse = new CategoryResponse();
-        categoryResponse.setId(category.getId());
-        categoryResponse.setName(category.getName());
-        categoryResponse.setDescription(category.getDescription());
+    @Override
+    public List<ClientCategoryResponse> getCategoryTree() {
+        List<Category> categories = categoryRepository.findAll();
+        return categories.stream().map(this::convert).toList();
+    }
+
+    private ClientCategoryResponse convert(Category category) {
+        ClientCategoryResponse clientCategoryResponse = new ClientCategoryResponse();
+        clientCategoryResponse.setId(category.getId());
+        clientCategoryResponse.setName(category.getName());
+        clientCategoryResponse.setDescription(category.getDescription());
         List<Category> children = category.getChildren();
-        categoryResponse.setChildren(children.stream().map(this::convert).toList());
-        return categoryResponse;
+        clientCategoryResponse.setChildren(children.stream().map(this::convert).toList());
+        return clientCategoryResponse;
     }
 }
