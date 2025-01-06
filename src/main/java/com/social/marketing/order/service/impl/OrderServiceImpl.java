@@ -17,6 +17,7 @@ import com.social.marketing.product.entity.Product;
 import com.social.marketing.product.service.ClientProductService;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -47,19 +48,26 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException("Quantity must be greater than 0.");
         }
         Product product = productService.getBySku(request.sku());
+        if (Objects.isNull(product.getBase()) && CollectionUtils.isNotEmpty(product.getVariants())) {
+            throw new BadRequestException("Can't place order because the product is base.");
+        }
+        if (Objects.isNull(product.getPrice())) {
+            throw new BadRequestException("Product price cannot be null.");
+        }
+        Order order = buildOrder(request, product);
+        orderRepository.save(order);
+        return convert(order);
+    }
+
+    private Order buildOrder(PlaceOrderRequest request, Product product) {
         Order order = new Order();
         order.setProduct(product);
         order.setQuantity(request.quantity());
         order.setEmail(request.email());
         order.setDescription(request.description());
         order.setOrderStatus(OrderStatus.OPEN);
-        BigDecimal price = product.getPrice();
-        if (Objects.isNull(price)) {
-            throw new BadRequestException("Product price cannot be null.");
-        }
-        order.setSubTotal(price.multiply(BigDecimal.valueOf(request.quantity())));
-        orderRepository.save(order);
-        return convert(order);
+        order.setSubTotal(product.getPrice().multiply(BigDecimal.valueOf(request.quantity())));
+        return order;
     }
 
     @Override

@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Builder
 public class Error {
 
-    private LocalDateTime timestamp;
     private String message;
 }
 

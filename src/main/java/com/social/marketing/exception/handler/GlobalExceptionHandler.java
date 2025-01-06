@@ -14,14 +14,14 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {Exception.class})
-    private ResponseEntity<Object> handleCommonException() {
+    private ResponseEntity<Object> handleCommonException(final Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Error.builder().timestamp(LocalDateTime.now()).message("Internal server error.").build());
+                .body(Error.builder().message(e.getMessage()).build());
     }
 
     @ExceptionHandler(value = {BaseException.class})
     private ResponseEntity<Object> handleCommonException(final BaseException e) {
         return ResponseEntity.status(e.getStatus())
-                .body(Error.builder().timestamp(LocalDateTime.now()).message(e.getMessage()).build());
+                .body(Error.builder().message(e.getMessage()).build());
     }
 }
