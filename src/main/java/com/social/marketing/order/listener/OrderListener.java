@@ -21,7 +21,7 @@ public class OrderListener {
         if (payload != null) {
             Order order = orderService.getOrderById(payload.getData().getOrderCode());
             if ("00".equals(payload.getData().getCode())) {
-                order.setOrderStatus(OrderStatus.PAID);
+                order.setStatus(OrderStatus.PAID);
             }
             orderService.save(order);
         }

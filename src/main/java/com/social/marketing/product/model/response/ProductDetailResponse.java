@@ -9,17 +9,19 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ClientProductDetailResponse {
+public class ProductDetailResponse {
     private Long id;
     private String sku;
     private String name;
     private String description;
+    private BigDecimal originPrice;
     private BigDecimal price;
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
     private String mainImage;
     private String category;
-    private List<ClientProductDetailResponse> variants;
+    private List<ProductDetailResponse> variants;
     private BigDecimal lowPrice;
     private BigDecimal highPrice;
+    private String externalId;
 }

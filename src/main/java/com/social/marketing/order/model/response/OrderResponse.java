@@ -5,12 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
 public class OrderResponse {
     private Long id;
-    private String description;
-    private OrderStatus orderStatus;
+    private String email;
+    private OrderStatus status;
     private BigDecimal subTotal;
+    private ZonedDateTime createDate;
+    private ZonedDateTime lastModifiedDate;
 }

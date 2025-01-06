@@ -65,18 +65,25 @@ public class OrderServiceImpl implements OrderService {
         order.setQuantity(request.quantity());
         order.setEmail(request.email());
         order.setDescription(request.description());
-        order.setOrderStatus(OrderStatus.OPEN);
-        order.setSubTotal(product.getPrice().multiply(BigDecimal.valueOf(request.quantity())));
-        return order;
+        order.setStatus(OrderStatus.OPEN);
+        BigDecimal price = product.getPrice();
+        if (Objects.isNull(price)) {
+            throw new BadRequestException("Product price cannot be null.");
+        }
+        order.setSubTotal(price.multiply(BigDecimal.valueOf(request.quantity())));
+        orderRepository.save(order);
+        return convert(order);
     }
 
     @Override
     public OrderResponse convert(Order order) {
         OrderResponse orderResponse = new OrderResponse();
-        orderResponse.setOrderStatus(order.getOrderStatus());
         orderResponse.setId(order.getId());
-        orderResponse.setDescription(order.getDescription());
+        orderResponse.setEmail(order.getEmail());
+        orderResponse.setStatus(order.getStatus());
         orderResponse.setSubTotal(order.getSubTotal());
+        orderResponse.setCreateDate(order.getCreatedDate());
+        orderResponse.setLastModifiedDate(order.getLastModifiedDate());
         return orderResponse;
     }
 

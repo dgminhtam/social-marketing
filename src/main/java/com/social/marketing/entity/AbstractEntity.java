@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Getter
 @MappedSuperclass
@@ -22,13 +22,13 @@ public class AbstractEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+    @CreatedDate
+    private ZonedDateTime createdDate;
 
+    @Column
     @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime lastModifiedDate;
+    private ZonedDateTime lastModifiedDate;
 
     @CreatedBy
     @Column(updatable = false)

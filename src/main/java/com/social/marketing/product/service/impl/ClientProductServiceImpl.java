@@ -65,6 +65,7 @@ public class ClientProductServiceImpl implements ClientProductService {
     @Override
     public ClientProductResponse convert(Product product) {
         ClientProductResponse response = new ClientProductResponse();
+        response.setId(product.getId());
         response.setSku(product.getSku());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
@@ -85,6 +86,7 @@ public class ClientProductServiceImpl implements ClientProductService {
     @Override
     public ClientProductDetailResponse convertDetail(Product product) {
         ClientProductDetailResponse response = new ClientProductDetailResponse();
+        response.setId(product.getId());
         response.setSku(product.getSku());
         response.setName(product.getName());
         response.setDescription(product.getDescription());

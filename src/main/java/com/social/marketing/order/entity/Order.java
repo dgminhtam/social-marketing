@@ -22,7 +22,7 @@ public class Order extends AbstractEntity {
     private String email;
 
     @Enumerated(value = EnumType.STRING)
-    private OrderStatus orderStatus;
+    private OrderStatus status;
 
     @Column
     private String description;

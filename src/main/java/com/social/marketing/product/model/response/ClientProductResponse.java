@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class ClientProductResponse {
+    private Long id;
     private String sku;
     private String name;
     private String description;

@@ -1,8 +1,15 @@
 spring:
   application:
     name: social-marketing
-
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
 security:
   enabled: false
   publicEndpoint:
     location: /auth/endpoint.config.json
+
+file:
+  upload-dir: uploads/images
