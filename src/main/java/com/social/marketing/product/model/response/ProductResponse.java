@@ -1,6 +1,7 @@
 package com.social.marketing.product.model.response;
 
 
+import com.social.marketing.media.model.response.MediaResponse;
 import com.social.marketing.product.entity.ProductStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,5 +20,5 @@ public class ProductResponse {
     private ProductStatus status;
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
-    private String mainImage;
+    private MediaResponse image;
 }

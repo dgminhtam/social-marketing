@@ -71,8 +71,7 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException("Product price cannot be null.");
         }
         order.setSubTotal(price.multiply(BigDecimal.valueOf(request.quantity())));
-        orderRepository.save(order);
-        return convert(order);
+        return order;
     }
 
     @Override

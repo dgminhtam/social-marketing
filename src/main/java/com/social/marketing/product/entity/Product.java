@@ -1,10 +1,12 @@
 package com.social.marketing.product.entity;
 
 import com.social.marketing.entity.AbstractEntity;
+import com.social.marketing.media.entity.Media;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.LazyGroup;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,8 +40,9 @@ public class Product extends AbstractEntity {
     @Column
     private Long minOrderQuantity;
 
-    @Column
-    private String mainImage;
+    @OneToOne(fetch = FetchType.LAZY)
+    @LazyGroup(Fields.image)
+    private Media image;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

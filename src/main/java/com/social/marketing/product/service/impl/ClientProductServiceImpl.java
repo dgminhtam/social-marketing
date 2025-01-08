@@ -72,7 +72,6 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setName(product.getName());
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
-        response.setMainImage(product.getMainImage());
         response.setCategory(product.getCategory().getName());
         return response;
     }
@@ -93,7 +92,6 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setPrice(product.getPrice());
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
-        response.setMainImage(product.getMainImage());
         response.setCategory(product.getCategory().getName());
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {

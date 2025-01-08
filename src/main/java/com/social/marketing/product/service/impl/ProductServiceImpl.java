@@ -1,7 +1,8 @@
 package com.social.marketing.product.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
-import com.social.marketing.file.service.FileService;
+import com.social.marketing.media.entity.Media;
+import com.social.marketing.media.service.MediaService;
 import com.social.marketing.product.entity.Product;
 import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,7 +29,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Resource
-    private FileService fileService;
+    private MediaService mediaService;
 
     @Override
     public Page<ProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {
@@ -47,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
         response.setName(product.getName());
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
-        response.setMainImage(product.getMainImage());
+        response.setImage(mediaService.convert(product.getImage()));
         response.setStatus(product.getStatus());
         return response;
     }
@@ -78,7 +80,7 @@ public class ProductServiceImpl implements ProductService {
         response.setPrice(product.getPrice());
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
-        response.setMainImage(product.getMainImage());
+        response.setImage(mediaService.convert(product.getImage()));
         response.setCategory(product.getCategory().getName());
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {
@@ -100,14 +102,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void uploadProductImage(Long id, MultipartFile image) {
-        String fileName = fileService.uploadFile(image);
         Product product = getProductById(id);
-        product.setMainImage(fileName);
+        if (Objects.nonNull(product.getImage())) {
+            Media deleteMedia = product.getImage();
+            product.setImage(null);
+            productRepository.save(product);
+            mediaService.delete(deleteMedia);
+        }
+        Media media = mediaService.create(image);
+        product.setImage(media);
         productRepository.save(product);
     }
 
     private void convertUpdate(UpdateProductRequest source, Product target) {
         target.setName(source.name());
         target.setDescription(source.description());
+        target.setPrice(source.price());
     }
 }

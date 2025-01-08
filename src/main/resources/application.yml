@@ -12,4 +12,8 @@ security:
     location: /auth/endpoint.config.json
 
 file:
-  upload-dir: uploads/images
+  upload-dir: uploads/images/
+  max-size: 5242880
+  accept-mime-types:
+    - image/jpeg
+    - image/png

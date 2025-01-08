@@ -36,7 +36,7 @@ public class ProductController {
         return productService.updateProduct(id, request);
     }
 
-    @PostMapping("/{id}/upload-image")
+    @PostMapping("/{id}/image")
     public void uploadProductImage(@PathVariable Long id, @RequestParam("image") MultipartFile image) {
         productService.uploadProductImage(id, image);
     }
