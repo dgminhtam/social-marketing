@@ -1,9 +1,9 @@
 package com.social.marketing.product.controller;
 
 import com.social.marketing.product.entity.Category;
+import com.social.marketing.product.model.response.CategoryResponse;
 import com.social.marketing.product.model.response.ClientCategoryResponse;
 import com.social.marketing.product.service.CategoryService;
-import com.social.marketing.product.service.ClientCategoryService;
 import com.social.marketing.search.anotation.Search;
 import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
@@ -16,19 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/client/categories")
-public class ClientCategoryController {
+@RequestMapping("/categories")
+public class CategoryController {
 
     @Resource
-    private ClientCategoryService clientCategoryService;
-
-    @GetMapping("/tree")
-    public List<ClientCategoryResponse> getCategories() {
-        return clientCategoryService.getCategoryTree();
-    }
+    private CategoryService categoryService;
 
     @GetMapping
-    public Page<ClientCategoryResponse> getCategories(@Search Specification<Category> specification, Pageable pageable) {
-        return clientCategoryService.getCategories(specification, pageable);
+    public Page<CategoryResponse> getCategories(@Search Specification<Category> specification, Pageable pageable) {
+        return categoryService.getCategories(specification, pageable);
     }
 }

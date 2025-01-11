@@ -157,7 +157,7 @@ public class ProductServiceImpl implements ProductService {
     public void syncProducts() {
         List<MarketingxanhServiceResponse> responses = marketingxanhService.getServices();
         if (responses.isEmpty()) {
-            throw new RuntimeException("No marketingxanh services found.");
+            throw new RuntimeException("No services found.");
         }
 
         List<String> externalIds = responses.stream()
