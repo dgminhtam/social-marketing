@@ -1,6 +1,7 @@
 package com.social.marketing.product.service;
 
 import com.social.marketing.product.entity.Product;
+import com.social.marketing.product.model.request.ChangeStatusRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface ProductService {
 
@@ -24,4 +27,12 @@ public interface ProductService {
     ProductDetailResponse updateProduct(Long id, UpdateProductRequest request);
 
     void uploadProductImage(Long id, MultipartFile image);
+
+    void changeStatus(Long id, ChangeStatusRequest request);
+
+    List<Product> getAllBySkus(List<String> skus);
+
+    void saveAll(List<Product> products);
+
+    void syncProducts();
 }

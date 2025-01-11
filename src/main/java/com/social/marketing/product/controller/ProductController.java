@@ -1,6 +1,7 @@
 package com.social.marketing.product.controller;
 
 import com.social.marketing.product.entity.Product;
+import com.social.marketing.product.model.request.ChangeStatusRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
@@ -39,6 +40,16 @@ public class ProductController {
     @PostMapping("/{id}/image")
     public void uploadProductImage(@PathVariable Long id, @RequestParam("image") MultipartFile image) {
         productService.uploadProductImage(id, image);
+    }
+
+    @PatchMapping("/{id}/status")
+    public void changeStatus(@PathVariable Long id, @RequestBody ChangeStatusRequest request) {
+        productService.changeStatus(id, request);
+    }
+
+    @PostMapping("/sync")
+    public void syncProducts() {
+        productService.syncProducts();
     }
 
 }

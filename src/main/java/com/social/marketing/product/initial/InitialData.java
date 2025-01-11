@@ -5,7 +5,7 @@ import com.social.marketing.integration.marketingxanh.service.MarketingxanhServi
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
 import com.social.marketing.product.service.CategoryService;
-import com.social.marketing.product.service.ClientProductService;
+import com.social.marketing.product.service.ProductService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
@@ -28,7 +28,7 @@ public class InitialData {
     private CategoryService categoryService;
 
     @Resource
-    private ClientProductService productService;
+    private ProductService productService;
 
     @PostConstruct
     @Transactional

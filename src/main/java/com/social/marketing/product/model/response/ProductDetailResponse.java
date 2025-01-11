@@ -2,6 +2,7 @@ package com.social.marketing.product.model.response;
 
 
 import com.social.marketing.media.model.response.MediaResponse;
+import com.social.marketing.product.entity.ProductStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,5 +25,6 @@ public class ProductDetailResponse {
     private List<ProductDetailResponse> variants;
     private BigDecimal lowPrice;
     private BigDecimal highPrice;
+    private ProductStatus status;
     private String externalId;
 }

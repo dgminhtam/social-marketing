@@ -7,17 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.List;
-
 public interface ClientProductService {
-
-    void saveAll(List<Product> products);
 
     Page<ClientProductResponse> getBaseProducts(Specification<Product> specification, Pageable pageable);
 
     Product get(Long id);
-
-    List<Product> getAllBySkus(List<String> skus);
 
     Product getBySku(String sku);
 

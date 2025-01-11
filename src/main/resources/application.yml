@@ -17,3 +17,4 @@ file:
   accept-mime-types:
     - image/jpeg
     - image/png
+    - image/webp

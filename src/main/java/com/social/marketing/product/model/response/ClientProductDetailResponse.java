@@ -1,6 +1,7 @@
 package com.social.marketing.product.model.response;
 
 
+import com.social.marketing.media.model.response.MediaResponse;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,7 @@ public class ClientProductDetailResponse {
     private BigDecimal price;
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
-    private String mainImage;
+    private MediaResponse image;
     private String category;
     private List<ClientProductDetailResponse> variants;
     private BigDecimal lowPrice;

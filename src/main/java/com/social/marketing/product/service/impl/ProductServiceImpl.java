@@ -1,9 +1,13 @@
 package com.social.marketing.product.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
+import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhServiceResponse;
+import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
 import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.service.MediaService;
 import com.social.marketing.product.entity.Product;
+import com.social.marketing.product.entity.ProductStatus;
+import com.social.marketing.product.model.request.ChangeStatusRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
@@ -19,8 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -31,9 +37,14 @@ public class ProductServiceImpl implements ProductService {
     @Resource
     private MediaService mediaService;
 
+    @Resource
+    private MarketingxanhService marketingxanhService;
+
     @Override
     public Page<ProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {
-        Page<Product> products = productRepository.findAll(specification, pageable);
+        Specification<Product> spec =
+                (root, query, builder) -> builder.isNull(root.get(Product.Fields.base));
+        Page<Product> products = productRepository.findAll(spec.and(specification), pageable);
         List<ProductResponse> clientProductResponse = products.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(clientProductResponse, products.getPageable(), products.getTotalElements());
     }
@@ -82,6 +93,7 @@ public class ProductServiceImpl implements ProductService {
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         response.setImage(mediaService.convert(product.getImage()));
         response.setCategory(product.getCategory().getName());
+        response.setStatus(product.getStatus());
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {
             response.setVariants(variants.stream().map(this::convertDetail).toList());
@@ -113,6 +125,65 @@ public class ProductServiceImpl implements ProductService {
         product.setImage(media);
         productRepository.save(product);
     }
+
+    @Override
+    public void changeStatus(Long id, ChangeStatusRequest request) {
+        Product product = getProductById(id);
+        List<Product> updateProducts = product.getVariants();
+        if (Objects.isNull(product.getBase()) && (ProductStatus.DRAFT.equals(request.status()) || ProductStatus.ARCHIVE.equals(request.status()))) {
+            List<Product> variants = product.getVariants();
+            if (CollectionUtils.isNotEmpty(variants)) {
+                variants.forEach(variant -> variant.setStatus(request.status()));
+            }
+        }
+        product.setStatus(request.status());
+        updateProducts.add(product);
+        productRepository.save(product);
+    }
+
+    @Override
+    public void saveAll(List<Product> products) {
+        productRepository.saveAll(products);
+    }
+
+    @Override
+    public List<Product> getAllBySkus(List<String> skus) {
+        Specification<Product> specification =
+                (root, query, builder) -> builder.in(root.get(Product.Fields.sku)).value(skus);
+        return productRepository.findAll(specification);
+    }
+
+    @Override
+    public void syncProducts() {
+        List<MarketingxanhServiceResponse> responses = marketingxanhService.getServices();
+        if (responses.isEmpty()) {
+            throw new RuntimeException("No marketingxanh services found.");
+        }
+
+        List<String> externalIds = responses.stream()
+                .map(MarketingxanhServiceResponse::getService)
+                .toList();
+
+        List<Product> existingProducts = productRepository.findByExternalIdIn(externalIds);
+
+        if (existingProducts.isEmpty()) {
+            throw new RuntimeException("No matching products found in the database.");
+        }
+
+        Map<String, MarketingxanhServiceResponse> responseMap = responses.stream()
+                .collect(Collectors.toMap(MarketingxanhServiceResponse::getService, response -> response));
+
+        existingProducts.forEach(product -> {
+            MarketingxanhServiceResponse matchingResponse = responseMap.get(product.getExternalId());
+            if (matchingResponse != null) {
+                product.setName(matchingResponse.getName());
+                product.setMinOrderQuantity(matchingResponse.getMin());
+                product.setMaxOrderQuantity(matchingResponse.getMax());
+            }
+        });
+        productRepository.saveAll(existingProducts);
+    }
+
 
     private void convertUpdate(UpdateProductRequest source, Product target) {
         target.setName(source.name());

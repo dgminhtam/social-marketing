@@ -1,12 +1,15 @@
 package com.social.marketing.product.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
+import com.social.marketing.media.service.MediaService;
 import com.social.marketing.product.entity.Product;
+import com.social.marketing.product.entity.ProductStatus;
 import com.social.marketing.product.model.response.ClientProductDetailResponse;
 import com.social.marketing.product.model.response.ClientProductResponse;
 import com.social.marketing.product.repository.ProductRepository;
 import com.social.marketing.product.service.ClientProductService;
 import jakarta.annotation.Resource;
+import jakarta.persistence.criteria.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,15 +27,17 @@ public class ClientProductServiceImpl implements ClientProductService {
     @Resource
     private ProductRepository productRepository;
 
-    @Override
-    public void saveAll(List<Product> products) {
-        productRepository.saveAll(products);
-    }
+    @Resource
+    private MediaService mediaService;
 
     @Override
     public Page<ClientProductResponse> getBaseProducts(Specification<Product> specification, Pageable pageable) {
         Specification<Product> spec =
-                (root, query, builder) -> builder.isNull(root.get(Product.Fields.base));
+                (root, query, builder) -> {
+                    Predicate byBase = builder.isNull(root.get(Product.Fields.base));
+                    Predicate byStatus = builder.equal(root.get(Product.Fields.status), ProductStatus.APPROVED);
+                    return builder.and(byBase, byStatus);
+                };
         Page<Product> products = productRepository.findAll(spec.and(specification), pageable);
         List<ClientProductResponse> clientProductResponses = products.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(clientProductResponses, products.getPageable(), products.getTotalElements());
@@ -56,13 +62,6 @@ public class ClientProductServiceImpl implements ClientProductService {
     }
 
     @Override
-    public List<Product> getAllBySkus(List<String> skus) {
-        Specification<Product> specification =
-                (root, query, builder) -> builder.in(root.get(Product.Fields.sku)).value(skus);
-        return productRepository.findAll(specification);
-    }
-
-    @Override
     public ClientProductResponse convert(Product product) {
         ClientProductResponse response = new ClientProductResponse();
         response.setId(product.getId());
@@ -73,6 +72,18 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         response.setCategory(product.getCategory().getName());
+        response.setImage(mediaService.convert(product.getImage()));
+        List<Product> variants = product.getVariants();
+        if (CollectionUtils.isNotEmpty(variants)) {
+            List<ClientProductDetailResponse> variantResponses = variants.stream()
+                    .filter(variant -> ProductStatus.APPROVED.equals(variant.getStatus()))
+                    .map(this::convertDetail)
+                    .toList();
+            variantResponses.stream()
+                    .map(ClientProductDetailResponse::getPrice)
+                    .min(Comparator.naturalOrder())
+                    .ifPresent(response::setLowPrice);
+        }
         return response;
     }
 
@@ -93,11 +104,24 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         response.setCategory(product.getCategory().getName());
+        response.setImage(mediaService.convert(product.getImage()));
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {
-            response.setVariants(variants.stream().map(this::convertDetail).toList());
-            response.setLowPrice(variants.get(0).getPrice());
-            response.setHighPrice(variants.get(variants.size() - 1).getPrice());
+            List<ClientProductDetailResponse> variantResponses = variants.stream()
+                    .filter(variant -> ProductStatus.APPROVED.equals(variant.getStatus()))
+                    .map(this::convertDetail)
+                    .toList();
+            response.setVariants(variantResponses);
+
+            variantResponses.stream()
+                    .map(ClientProductDetailResponse::getPrice)
+                    .min(Comparator.naturalOrder())
+                    .ifPresent(response::setLowPrice);
+
+            variantResponses.stream()
+                    .map(ClientProductDetailResponse::getPrice)
+                    .max(Comparator.naturalOrder())
+                    .ifPresent(response::setHighPrice);
         }
         return response;
     }
