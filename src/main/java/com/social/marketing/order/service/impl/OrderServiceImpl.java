@@ -6,8 +6,10 @@ import com.social.marketing.integration.payos.model.request.PayOSRequestPaymentR
 import com.social.marketing.integration.payos.model.response.PayOSRequestPaymentResponse;
 import com.social.marketing.integration.payos.service.PayOSService;
 import com.social.marketing.order.entity.Order;
+import com.social.marketing.order.entity.OrderEntry;
 import com.social.marketing.order.entity.OrderStatus;
 import com.social.marketing.order.entity.PaymentTransaction;
+import com.social.marketing.order.model.request.OrderEntryRequest;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.model.response.PaymentResponse;
@@ -25,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,34 +47,49 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse placeOrder(PlaceOrderRequest request) {
-        if (request.quantity() <= 0) {
-            throw new BadRequestException("Quantity must be greater than 0.");
-        }
-        Product product = productService.getBySku(request.sku());
-        if (Objects.isNull(product.getBase()) && CollectionUtils.isNotEmpty(product.getVariants())) {
-            throw new BadRequestException("Can't place order because the product is base.");
-        }
-        if (Objects.isNull(product.getPrice())) {
-            throw new BadRequestException("Product price cannot be null.");
-        }
-        Order order = buildOrder(request, product);
+        Order order = buildOrder(request);
         orderRepository.save(order);
         return convert(order);
     }
 
-    private Order buildOrder(PlaceOrderRequest request, Product product) {
+    private Order buildOrder(PlaceOrderRequest request) {
         Order order = new Order();
-        order.setProduct(product);
-        order.setQuantity(request.quantity());
         order.setEmail(request.email());
         order.setDescription(request.description());
         order.setStatus(OrderStatus.OPEN);
-        BigDecimal price = product.getPrice();
-        if (Objects.isNull(price)) {
-            throw new BadRequestException("Product price cannot be null.");
-        }
-        order.setSubTotal(price.multiply(BigDecimal.valueOf(request.quantity())));
+        List<OrderEntry> entries = buildOrderEntries(request.entries(), order);
+        order.setEntries(entries);
+        order.setSubTotal(entries.stream()
+                .map(OrderEntry::getSubTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
         return order;
+    }
+
+    private List<OrderEntry> buildOrderEntries(List<OrderEntryRequest> entriesRequest, Order order) {
+        List<OrderEntry> entries = new ArrayList<>();
+        if (CollectionUtils.isEmpty(entriesRequest)){
+            throw new BadRequestException("No product selected.");
+        }
+        entriesRequest.forEach(entryRequest -> {
+            OrderEntry orderEntry = new OrderEntry();
+            Product product = productService.getBySku(entryRequest.sku());
+            if (Objects.isNull(product.getBase()) && CollectionUtils.isNotEmpty(product.getVariants())) {
+                throw new BadRequestException("Can't place order because the product is base.");
+            }
+            BigDecimal price = product.getPrice();
+            if (Objects.isNull(price)) {
+                throw new BadRequestException("Product price cannot be null.");
+            }
+            orderEntry.setProduct(product);
+            orderEntry.setPrice(price);
+            orderEntry.setQuantity(entryRequest.quantity());
+            orderEntry.setName(product.getName());
+            orderEntry.setDescription(entryRequest.description());
+            orderEntry.setSubTotal(price.multiply(BigDecimal.valueOf(entryRequest.quantity())));
+            orderEntry.setOrder(order);
+            entries.add(orderEntry);
+        });
+        return entries;
     }
 
     @Override

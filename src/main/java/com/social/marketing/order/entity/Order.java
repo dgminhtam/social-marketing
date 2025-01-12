@@ -27,15 +27,11 @@ public class Order extends AbstractEntity {
     @Column
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    @Column
-    private Long quantity;
-
     @Column
     private BigDecimal subTotal;
+
+    @OneToMany(mappedBy = OrderEntry.Fields.order, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<OrderEntry> entries = new ArrayList<>();
 
     @OneToMany(mappedBy = PaymentTransaction.Fields.order, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<PaymentTransaction> paymentTransactions = new ArrayList<>();

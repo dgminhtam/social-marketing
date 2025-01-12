@@ -1,7 +1,9 @@
 package com.social.marketing.product.service;
 
 import com.social.marketing.product.entity.Category;
+import com.social.marketing.product.model.request.UpdateCategoryRequest;
 import com.social.marketing.product.model.response.CategoryResponse;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface CategoryService {
+
+    Category getCategoryById(Long id);
 
     void saveAll(List<Category> categories);
 
@@ -20,5 +24,9 @@ public interface CategoryService {
     void save(Category rootCategory);
 
     List<CategoryResponse> getCategoryTree();
+
+    CategoryResponse getCategory(Long id);
+
+    CategoryResponse updateCategory(Long id, @Valid UpdateCategoryRequest request);
 }
 
