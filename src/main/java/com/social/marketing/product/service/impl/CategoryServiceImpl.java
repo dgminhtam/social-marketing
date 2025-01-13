@@ -2,6 +2,7 @@ package com.social.marketing.product.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.product.entity.Category;
+import com.social.marketing.product.model.request.CreateCategoryRequest;
 import com.social.marketing.product.model.request.UpdateCategoryRequest;
 import com.social.marketing.product.model.response.CategoryResponse;
 import com.social.marketing.product.repository.CategoryRepository;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -77,13 +79,31 @@ public class CategoryServiceImpl implements CategoryService {
         return convert(category);
     }
 
-    private CategoryResponse convert(Category category) {
+    @Override
+    public CategoryResponse createCategory(CreateCategoryRequest request) {
+        Category category = new Category();
+        category.setName(request.name());
+        category.setDescription(request.description());
+        categoryRepository.save(category);
+        return convert(category);
+    }
+
+    @Override
+    public void deleteCategory(Long id) {
+        Category category = getCategoryById(id);
+        categoryRepository.delete(category);
+    }
+
+    @Override
+    public CategoryResponse convert(Category category) {
         CategoryResponse categoryResponse = new CategoryResponse();
         categoryResponse.setId(category.getId());
         categoryResponse.setName(category.getName());
         categoryResponse.setDescription(category.getDescription());
         List<Category> children = category.getChildren();
         categoryResponse.setChildren(children.stream().map(this::convert).toList());
+        categoryResponse.setCreatedDate(category.getCreatedDate().format(DateTimeFormatter.ISO_DATE_TIME));
+        categoryResponse.setLastModifiedDate(category.getLastModifiedDate().format(DateTimeFormatter.ISO_DATE_TIME));
         return categoryResponse;
     }
 }

@@ -1,9 +1,9 @@
 package com.social.marketing.product.controller;
 
 import com.social.marketing.product.entity.Category;
+import com.social.marketing.product.model.request.CreateCategoryRequest;
 import com.social.marketing.product.model.request.UpdateCategoryRequest;
 import com.social.marketing.product.model.response.CategoryResponse;
-import com.social.marketing.product.model.response.ClientCategoryResponse;
 import com.social.marketing.product.service.CategoryService;
 import com.social.marketing.search.anotation.Search;
 import jakarta.annotation.Resource;
@@ -12,8 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
@@ -32,8 +30,18 @@ public class CategoryController {
         return categoryService.getCategory(id);
     }
 
+    @PostMapping
+    public CategoryResponse createCategory(@RequestBody @Valid CreateCategoryRequest request) {
+        return categoryService.createCategory(request);
+    }
+
     @PutMapping("/{id}")
     public CategoryResponse updateCategory(@PathVariable Long id, @RequestBody @Valid UpdateCategoryRequest request) {
         return categoryService.updateCategory(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
     }
 }

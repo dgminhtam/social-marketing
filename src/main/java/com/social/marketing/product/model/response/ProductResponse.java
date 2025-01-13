@@ -21,4 +21,5 @@ public class ProductResponse {
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
     private MediaResponse image;
+    private CategoryResponse category;
 }

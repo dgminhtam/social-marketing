@@ -1,6 +1,7 @@
 package com.social.marketing.product.service;
 
 import com.social.marketing.product.entity.Category;
+import com.social.marketing.product.model.request.CreateCategoryRequest;
 import com.social.marketing.product.model.request.UpdateCategoryRequest;
 import com.social.marketing.product.model.response.CategoryResponse;
 import jakarta.validation.Valid;
@@ -28,5 +29,11 @@ public interface CategoryService {
     CategoryResponse getCategory(Long id);
 
     CategoryResponse updateCategory(Long id, @Valid UpdateCategoryRequest request);
+
+    CategoryResponse createCategory(CreateCategoryRequest request);
+
+    void deleteCategory(Long id);
+
+    CategoryResponse convert(Category category);
 }
 

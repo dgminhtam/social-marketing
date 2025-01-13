@@ -16,4 +16,8 @@ public class CategoryResponse {
     private String description;
 
     private List<CategoryResponse> children;
+
+    private String createdDate;
+
+    private String lastModifiedDate;
 }

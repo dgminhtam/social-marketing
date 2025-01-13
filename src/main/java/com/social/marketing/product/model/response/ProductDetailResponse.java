@@ -21,10 +21,10 @@ public class ProductDetailResponse {
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
     private MediaResponse image;
-    private String category;
     private List<ProductDetailResponse> variants;
     private BigDecimal lowPrice;
     private BigDecimal highPrice;
     private ProductStatus status;
     private String externalId;
+    private CategoryResponse category;
 }

@@ -15,6 +15,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -52,4 +54,8 @@ public class ProductController {
         productService.syncProducts();
     }
 
+    @GetMapping("/unassignment")
+    public List<ProductResponse> getProductsUnassignment() {
+        return productService.getProductsUnassignment();
+    }
 }

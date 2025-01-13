@@ -5,6 +5,7 @@ import com.social.marketing.integration.marketingxanh.model.response.Marketingxa
 import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
 import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.service.MediaService;
+import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
 import com.social.marketing.product.entity.ProductStatus;
 import com.social.marketing.product.model.request.ChangeStatusRequest;
@@ -12,8 +13,11 @@ import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
 import com.social.marketing.product.repository.ProductRepository;
+import com.social.marketing.product.service.CategoryService;
 import com.social.marketing.product.service.ProductService;
 import jakarta.annotation.Resource;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -22,10 +26,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +40,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Resource
     private MarketingxanhService marketingxanhService;
+
+    @Resource
+    private CategoryService categoryService;
 
     @Override
     public Page<ProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {
@@ -62,6 +66,10 @@ public class ProductServiceImpl implements ProductService {
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         response.setImage(mediaService.convert(product.getImage()));
         response.setStatus(product.getStatus());
+        Category category = product.getCategory();
+        if (Objects.nonNull(category)) {
+            response.setCategory(categoryService.convert(category));
+        }
         return response;
     }
 
@@ -92,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         response.setImage(mediaService.convert(product.getImage()));
-        response.setCategory(product.getCategory().getName());
+        response.setCategory(categoryService.convert(product.getCategory()));
         response.setStatus(product.getStatus());
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {
@@ -154,10 +162,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void syncProducts() {
         List<MarketingxanhServiceResponse> responses = marketingxanhService.getServices();
         if (responses.isEmpty()) {
-            throw new RuntimeException("No services found.");
+            throw new NotFoundException("No services found.");
         }
 
         List<String> externalIds = responses.stream()
@@ -166,28 +175,74 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> existingProducts = productRepository.findByExternalIdIn(externalIds);
 
-        if (existingProducts.isEmpty()) {
-            throw new RuntimeException("No matching products found in the database.");
-        }
+        Map<String, Product> existingProductMap = existingProducts.stream()
+                .collect(Collectors.toMap(Product::getExternalId, product -> product));
 
-        Map<String, MarketingxanhServiceResponse> responseMap = responses.stream()
-                .collect(Collectors.toMap(MarketingxanhServiceResponse::getService, response -> response));
-
-        existingProducts.forEach(product -> {
-            MarketingxanhServiceResponse matchingResponse = responseMap.get(product.getExternalId());
-            if (matchingResponse != null) {
-                product.setName(matchingResponse.getName());
-                product.setMinOrderQuantity(matchingResponse.getMin());
-                product.setMaxOrderQuantity(matchingResponse.getMax());
+        List<Product> newProducts = new ArrayList<>();
+        responses.forEach(response -> {
+            Product product = existingProductMap.get(response.getService());
+            if (product != null) {
+                updateProductWithResponse(product, response);
+            } else {
+                newProducts.add(createProductFromResponse(response));
             }
         });
+
         productRepository.saveAll(existingProducts);
+
+        if (!newProducts.isEmpty()) {
+            productRepository.saveAll(newProducts);
+        }
     }
 
+    private void updateProductWithResponse(Product product, MarketingxanhServiceResponse response) {
+        product.setName(response.getName());
+        product.setMinOrderQuantity(response.getMin());
+        product.setMaxOrderQuantity(response.getMax());
+        product.setOriginPrice(response.getRate());
+    }
 
-    private void convertUpdate(UpdateProductRequest source, Product target) {
+    private Product createProductFromResponse(MarketingxanhServiceResponse response) {
+        Product product = new Product();
+        product.setSku(UUID.randomUUID().toString());
+        product.setName(response.getName());
+        product.setDescription(response.getDesc());
+        product.setMinOrderQuantity(response.getMin());
+        product.setMaxOrderQuantity(response.getMax());
+        product.setOriginPrice(response.getRate());
+        product.setStatus(ProductStatus.DRAFT);
+        product.setExternalId(response.getService());
+        return product;
+    }
+
+    @Override
+    public void convertUpdate(UpdateProductRequest source, Product target) {
         target.setName(source.name());
         target.setDescription(source.description());
         target.setPrice(source.price());
+        Category category = categoryService.getCategoryById(source.categoryId());
+        target.setCategory(category);
+    }
+
+    @Override
+    public List<ProductResponse> getProductsByCategory(Category category) {
+        Specification<Product> specification =
+                (root, query, builder) -> {
+                    Predicate byBase = builder.isNull(root.get(Product.Fields.base));
+                    Predicate byStatus = builder.equal(root.get(Product.Fields.category), category);
+                    return builder.and(byBase, byStatus);
+                };
+        return productRepository.findAll(specification).stream().map(this::convert).toList();
+    }
+
+    @Override
+    public List<ProductResponse> getProductsUnassignment() {
+        Specification<Product> specification =
+                (root, query, builder) -> {
+                    Predicate byBase = builder.isNull(root.get(Product.Fields.base));
+                    Predicate byExternalId = builder.isNotNull(root.get(Product.Fields.externalId));
+                    return builder.and(byBase, byExternalId);
+                };
+        return productRepository.findAll(specification).stream().map(this::convert).toList();
     }
 }

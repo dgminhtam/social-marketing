@@ -35,7 +35,7 @@ public class InitialData {
     public void init() {
         List<MarketingxanhServiceResponse> responses = marketingxanhService.getServices();
         if (responses.isEmpty()) {
-            throw new RuntimeException("No marketingxanh services found.");
+            throw new RuntimeException("No services found.");
         }
         Map<String, Map<String, List<MarketingxanhServiceResponse>>> data = responses.stream()
                 .collect(Collectors.groupingBy(
