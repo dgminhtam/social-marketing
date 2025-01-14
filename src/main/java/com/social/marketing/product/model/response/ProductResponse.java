@@ -22,4 +22,5 @@ public class ProductResponse {
     private Long minOrderQuantity;
     private MediaResponse image;
     private CategoryResponse category;
+    private String externalId;
 }

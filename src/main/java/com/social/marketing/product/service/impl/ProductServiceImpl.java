@@ -70,6 +70,7 @@ public class ProductServiceImpl implements ProductService {
         if (Objects.nonNull(category)) {
             response.setCategory(categoryService.convert(category));
         }
+        response.setExternalId(product.getExternalId());
         return response;
     }
 
