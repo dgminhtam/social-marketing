@@ -40,6 +40,9 @@ public class Product extends AbstractEntity {
     @Column
     private Long minOrderQuantity;
 
+    @Column
+    private Boolean isBase = false;
+
     @OneToOne(fetch = FetchType.LAZY)
     @LazyGroup(Fields.image)
     private Media image;

@@ -1,5 +1,6 @@
 package com.social.marketing.product.service.impl;
 
+import com.social.marketing.entity.AbstractEntity;
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhServiceResponse;
 import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
@@ -8,7 +9,9 @@ import com.social.marketing.media.service.MediaService;
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
 import com.social.marketing.product.entity.ProductStatus;
+import com.social.marketing.product.model.request.AssignProductsRequest;
 import com.social.marketing.product.model.request.ChangeStatusRequest;
+import com.social.marketing.product.model.request.CreateProductRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
@@ -47,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {
         Specification<Product> spec =
-                (root, query, builder) -> builder.isNull(root.get(Product.Fields.base));
+                (root, query, builder) -> builder.isTrue(root.get(Product.Fields.isBase));
         Page<Product> products = productRepository.findAll(spec.and(specification), pageable);
         List<ProductResponse> clientProductResponse = products.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(clientProductResponse, products.getPageable(), products.getTotalElements());
@@ -101,7 +104,10 @@ public class ProductServiceImpl implements ProductService {
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         response.setImage(mediaService.convert(product.getImage()));
-        response.setCategory(categoryService.convert(product.getCategory()));
+        Category category = product.getCategory();
+        if (Objects.nonNull(category)) {
+            response.setCategory(categoryService.convert(category));
+        }
         response.setStatus(product.getStatus());
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {
@@ -201,6 +207,7 @@ public class ProductServiceImpl implements ProductService {
         product.setMinOrderQuantity(response.getMin());
         product.setMaxOrderQuantity(response.getMax());
         product.setOriginPrice(response.getRate());
+        product.setDescription(response.getCategory());
     }
 
     private Product createProductFromResponse(MarketingxanhServiceResponse response) {
@@ -245,5 +252,36 @@ public class ProductServiceImpl implements ProductService {
                     return builder.and(byBase, byExternalId);
                 };
         return productRepository.findAll(specification).stream().map(this::convert).toList();
+    }
+
+    @Override
+    public void assignProducts(Long id, AssignProductsRequest request) {
+        Product product = getProductById(id);
+        List<Long> variantIds = request.variantIds();
+        Specification<Product> specification =
+                (root, query, builder) -> {
+                    Predicate byBase = builder.isNull(root.get(Product.Fields.base));
+                    Predicate byStatus = builder.isNotNull(root.get(Product.Fields.externalId));
+                    Predicate byIds = builder.in(root.get(AbstractEntity.Fields.id)).value(variantIds);
+                    return builder.and(byBase, byStatus, byIds);
+                };
+        List<Product> products = productRepository.findAll(specification);
+        products.forEach(p -> p.setBase(product));
+        product.getVariants().addAll(products);
+        productRepository.save(product);
+    }
+
+    @Override
+    public ProductDetailResponse createProduct(CreateProductRequest request) {
+        Product product = new Product();
+        product.setName(request.name());
+        product.setSku(UUID.randomUUID().toString());
+        product.setDescription(request.description());
+        Category category = categoryService.getCategoryById(request.categoryId());
+        product.setCategory(category);
+        product.setStatus(ProductStatus.DRAFT);
+        product.setIsBase(true);
+        productRepository.save(product);
+        return convertDetail(product);
     }
 }

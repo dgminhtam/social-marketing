@@ -29,6 +29,9 @@ public class Category extends AbstractEntity {
     @Column
     private String imageUrl;
 
+    @Column
+    private Boolean active = false;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;

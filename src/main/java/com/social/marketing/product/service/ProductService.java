@@ -2,7 +2,9 @@ package com.social.marketing.product.service;
 
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
+import com.social.marketing.product.model.request.AssignProductsRequest;
 import com.social.marketing.product.model.request.ChangeStatusRequest;
+import com.social.marketing.product.model.request.CreateProductRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
@@ -42,4 +44,8 @@ public interface ProductService {
     List<ProductResponse> getProductsByCategory(Category category);
 
     List<ProductResponse> getProductsUnassignment();
+
+    void assignProducts(Long id, AssignProductsRequest request);
+
+    ProductDetailResponse createProduct(CreateProductRequest request);
 }

@@ -1,7 +1,9 @@
 package com.social.marketing.product.controller;
 
 import com.social.marketing.product.entity.Product;
+import com.social.marketing.product.model.request.AssignProductsRequest;
 import com.social.marketing.product.model.request.ChangeStatusRequest;
+import com.social.marketing.product.model.request.CreateProductRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
 import com.social.marketing.product.model.response.ProductDetailResponse;
 import com.social.marketing.product.model.response.ProductResponse;
@@ -34,6 +36,11 @@ public class ProductController {
         return productService.getProductDetail(id);
     }
 
+    @PostMapping
+    public ProductDetailResponse createProduct(@RequestBody @Valid CreateProductRequest request) {
+        return productService.createProduct(request);
+    }
+
     @PutMapping("/{id}")
     public ProductDetailResponse updateProduct(@PathVariable Long id, @RequestBody @Valid UpdateProductRequest request) {
         return productService.updateProduct(id, request);
@@ -57,5 +64,10 @@ public class ProductController {
     @GetMapping("/unassignment")
     public List<ProductResponse> getProductsUnassignment() {
         return productService.getProductsUnassignment();
+    }
+
+    @PostMapping("/{id}/assign")
+    public void assignProducts(@PathVariable Long id, @RequestBody AssignProductsRequest request) {
+        productService.assignProducts(id, request);
     }
 }
