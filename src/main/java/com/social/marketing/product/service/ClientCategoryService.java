@@ -20,5 +20,7 @@ public interface ClientCategoryService {
     void save(Category rootCategory);
 
     List<ClientCategoryResponse> getCategoryTree();
+
+    ClientCategoryResponse convert(Category category);
 }
 

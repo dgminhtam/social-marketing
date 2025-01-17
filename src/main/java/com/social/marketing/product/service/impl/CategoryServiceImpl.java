@@ -106,4 +106,13 @@ public class CategoryServiceImpl implements CategoryService {
         categoryResponse.setLastModifiedDate(category.getLastModifiedDate().format(DateTimeFormatter.ISO_DATE_TIME));
         return categoryResponse;
     }
+
+    @Override
+    public Category findByCode(String code) {
+        Optional<Category> categoryOptional = categoryRepository.findByCode(code);
+        if (categoryOptional.isEmpty()) {
+            throw new NotFoundException("Category not found.");
+        }
+        return categoryOptional.get();
+    }
 }

@@ -1,5 +1,6 @@
 package com.social.marketing.integration.payos.configuration;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,9 +22,16 @@ public class PayOSProperties {
 
     private String returnUrl;
 
-    private long expiredAt;
+    private Expired expired;
 
     private String clientWebHook;
 
 
+    @Data
+    public static class Expired {
+
+        private int minute;
+
+        private String zoneId;
+    }
 }

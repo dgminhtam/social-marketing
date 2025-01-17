@@ -19,7 +19,7 @@ public class ClientProductDetailResponse {
     private Long maxOrderQuantity;
     private Long minOrderQuantity;
     private MediaResponse image;
-    private String category;
+    private ClientCategoryResponse category;
     private List<ClientProductDetailResponse> variants;
     private BigDecimal lowPrice;
     private BigDecimal highPrice;

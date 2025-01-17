@@ -35,5 +35,7 @@ public interface CategoryService {
     void deleteCategory(Long id);
 
     CategoryResponse convert(Category category);
+
+    Category findByCode(String categoryCode);
 }
 

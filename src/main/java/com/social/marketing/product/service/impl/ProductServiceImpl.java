@@ -1,6 +1,7 @@
 package com.social.marketing.product.service.impl;
 
 import com.social.marketing.entity.AbstractEntity;
+import com.social.marketing.exception.BadRequestException;
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.integration.marketingxanh.model.response.MarketingxanhServiceResponse;
 import com.social.marketing.integration.marketingxanh.service.MarketingxanhService;
@@ -29,6 +30,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -144,16 +147,31 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void changeStatus(Long id, ChangeStatusRequest request) {
         Product product = getProductById(id);
-        List<Product> updateProducts = product.getVariants();
-        if (Objects.isNull(product.getBase()) && (ProductStatus.DRAFT.equals(request.status()) || ProductStatus.ARCHIVE.equals(request.status()))) {
-            List<Product> variants = product.getVariants();
-            if (CollectionUtils.isNotEmpty(variants)) {
-                variants.forEach(variant -> variant.setStatus(request.status()));
-            }
+        if (ProductStatus.APPROVED.equals(request.status())) {
+            validateProduct(product);
         }
         product.setStatus(request.status());
-        updateProducts.add(product);
         productRepository.save(product);
+    }
+
+    private void validateProduct(Product product) {
+        if (!product.getIsBase()) {
+            if (Objects.isNull(product.getPrice()) || BigDecimal.ZERO.equals(product.getPrice())) {
+                throw new BadRequestException("Price cannot be zero.");
+            }
+        } else {
+            List<Product> variants = product.getVariants();
+            if (CollectionUtils.isEmpty(variants)) {
+                throw new BadRequestException("Variant list cannot be empty.");
+            } else {
+                boolean hasApprovedVariant = variants.stream()
+                        .anyMatch(variant -> ProductStatus.APPROVED.equals(variant.getStatus()));
+
+                if (!hasApprovedVariant) {
+                    throw new BadRequestException("At least one variant must have status 'approved'.");
+                }
+            }
+        }
     }
 
     @Override
@@ -171,7 +189,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void syncProducts() {
-        List<MarketingxanhServiceResponse> responses = marketingxanhService.getServices();
+        List<MarketingxanhServiceResponse> responses = marketingxanhService.getServices()
+                .stream()
+                .filter(service -> Objects.nonNull(service.getRate()) && !BigDecimal.ZERO.equals(service.getRate()))
+                .toList();
+
         if (responses.isEmpty()) {
             throw new NotFoundException("No services found.");
         }
@@ -206,7 +228,10 @@ public class ProductServiceImpl implements ProductService {
         product.setName(response.getName());
         product.setMinOrderQuantity(response.getMin());
         product.setMaxOrderQuantity(response.getMax());
-        product.setOriginPrice(response.getRate());
+        product.setOriginPrice(
+                response.getRate()
+                        .divide(BigDecimal.valueOf(1000), RoundingMode.HALF_UP)
+                        .setScale(0, RoundingMode.HALF_UP));
         product.setDescription(response.getCategory());
     }
 
@@ -214,7 +239,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = new Product();
         product.setSku(UUID.randomUUID().toString());
         product.setName(response.getName());
-        product.setDescription(response.getDesc());
+        product.setDescription(response.getCategory());
         product.setMinOrderQuantity(response.getMin());
         product.setMaxOrderQuantity(response.getMax());
         product.setOriginPrice(response.getRate());
@@ -228,8 +253,10 @@ public class ProductServiceImpl implements ProductService {
         target.setName(source.name());
         target.setDescription(source.description());
         target.setPrice(source.price());
-        Category category = categoryService.getCategoryById(source.categoryId());
-        target.setCategory(category);
+        if (target.getIsBase()) {
+            Category category = categoryService.getCategoryById(source.categoryId());
+            target.setCategory(category);
+        }
     }
 
     @Override

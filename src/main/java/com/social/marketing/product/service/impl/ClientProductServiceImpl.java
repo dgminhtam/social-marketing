@@ -2,11 +2,13 @@ package com.social.marketing.product.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.media.service.MediaService;
+import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
 import com.social.marketing.product.entity.ProductStatus;
 import com.social.marketing.product.model.response.ClientProductDetailResponse;
 import com.social.marketing.product.model.response.ClientProductResponse;
 import com.social.marketing.product.repository.ProductRepository;
+import com.social.marketing.product.service.ClientCategoryService;
 import com.social.marketing.product.service.ClientProductService;
 import jakarta.annotation.Resource;
 import jakarta.persistence.criteria.Predicate;
@@ -17,8 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -30,6 +34,9 @@ public class ClientProductServiceImpl implements ClientProductService {
     @Resource
     private MediaService mediaService;
 
+    @Resource
+    private ClientCategoryService clientCategoryService;
+
     @Override
     public Page<ClientProductResponse> getBaseProducts(Specification<Product> specification, Pageable pageable) {
         Specification<Product> spec =
@@ -38,7 +45,7 @@ public class ClientProductServiceImpl implements ClientProductService {
                     Predicate byStatus = builder.equal(root.get(Product.Fields.status), ProductStatus.APPROVED);
                     return builder.and(byBase, byStatus);
                 };
-        Page<Product> products = productRepository.findAll(spec.and(specification), pageable);
+        Page<Product> products = productRepository.findAll(Objects.nonNull(specification) ? spec.and(specification) : spec, pageable);
         List<ClientProductResponse> clientProductResponses = products.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(clientProductResponses, products.getPageable(), products.getTotalElements());
     }
@@ -71,7 +78,10 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setName(product.getName());
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
-        response.setCategory(product.getCategory().getName());
+        Category category = product.getCategory();
+        if (Objects.nonNull(category)) {
+            response.setCategory(clientCategoryService.convert(category));
+        }
         response.setImage(mediaService.convert(product.getImage()));
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {
@@ -81,6 +91,7 @@ public class ClientProductServiceImpl implements ClientProductService {
                     .toList();
             variantResponses.stream()
                     .map(ClientProductDetailResponse::getPrice)
+                    .filter(Objects::nonNull)
                     .min(Comparator.naturalOrder())
                     .ifPresent(response::setLowPrice);
         }
@@ -100,10 +111,13 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setSku(product.getSku());
         response.setName(product.getName());
         response.setDescription(product.getDescription());
-        response.setPrice(product.getPrice());
+        response.setPrice(Objects.nonNull(product.getPrice()) ? product.getPrice() : BigDecimal.ZERO);
         response.setMinOrderQuantity(product.getMinOrderQuantity());
         response.setMaxOrderQuantity(product.getMaxOrderQuantity());
-        response.setCategory(product.getCategory().getName());
+        Category category = product.getCategory();
+        if (Objects.nonNull(category)) {
+            response.setCategory(clientCategoryService.convert(category));
+        }
         response.setImage(mediaService.convert(product.getImage()));
         List<Product> variants = product.getVariants();
         if (CollectionUtils.isNotEmpty(variants)) {

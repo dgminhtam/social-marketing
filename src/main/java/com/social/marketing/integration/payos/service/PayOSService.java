@@ -4,5 +4,6 @@ import com.social.marketing.integration.payos.model.request.PayOSRequestPaymentR
 import com.social.marketing.integration.payos.model.response.PayOSRequestPaymentResponse;
 
 public interface PayOSService {
+
     PayOSRequestPaymentResponse requestPayment(PayOSRequestPaymentRequest request);
 }

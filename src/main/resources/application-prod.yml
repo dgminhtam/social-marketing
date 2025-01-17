@@ -39,6 +39,9 @@ payos:
   api-key: 818b1415-aa7d-4591-a3b5-53db332ef537
   checksum-key: 38a8cbeca381726913f4c82fd0d27f46c45b4a99af17e2bd22f18b3b76046bbd
   url: https://api-merchant.payos.vn
-  cancel-url: https://payos.vn
-  return-url: https://payos.vn
-  expired-at: 10
+  cancel-url: http://localhost:3000/orders
+  return-url: http://localhost:3000/orders
+  expired:
+    zone-id: Asia/Ho_Chi_Minh
+    minute: 10
+  client-web-hook: https://webhooks-dev.digicommerce.cloud:3012/ws

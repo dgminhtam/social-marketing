@@ -3,7 +3,6 @@ package com.social.marketing.product.service.impl;
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.model.response.ClientCategoryResponse;
 import com.social.marketing.product.repository.CategoryRepository;
-import com.social.marketing.product.service.CategoryService;
 import com.social.marketing.product.service.ClientCategoryService;
 import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
@@ -51,7 +50,8 @@ public class ClientCategoryServiceImpl implements ClientCategoryService {
         return categories.stream().map(this::convert).toList();
     }
 
-    private ClientCategoryResponse convert(Category category) {
+    @Override
+    public ClientCategoryResponse convert(Category category) {
         ClientCategoryResponse clientCategoryResponse = new ClientCategoryResponse();
         clientCategoryResponse.setId(category.getId());
         clientCategoryResponse.setName(category.getName());

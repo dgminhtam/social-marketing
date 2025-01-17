@@ -16,15 +16,6 @@ import java.math.BigDecimal;
 public class PaymentTransaction extends AbstractEntity {
 
     @Column
-    private String bin;
-
-    @Column
-    private String accountNumber;
-
-    @Column
-    private String accountName;
-
-    @Column
     private BigDecimal amount;
 
     @Column
@@ -34,13 +25,11 @@ public class PaymentTransaction extends AbstractEntity {
     private String currencyCode;
 
     @Column
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PaymentProvider provider;
 
     @Column
     private String checkoutUrl;
-
-    @Column
-    private String qrCode;
 
     @Column
     private Long expiredAt;

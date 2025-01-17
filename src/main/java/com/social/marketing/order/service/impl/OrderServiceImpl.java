@@ -5,10 +5,7 @@ import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.integration.payos.model.request.PayOSRequestPaymentRequest;
 import com.social.marketing.integration.payos.model.response.PayOSRequestPaymentResponse;
 import com.social.marketing.integration.payos.service.PayOSService;
-import com.social.marketing.order.entity.Order;
-import com.social.marketing.order.entity.OrderEntry;
-import com.social.marketing.order.entity.OrderStatus;
-import com.social.marketing.order.entity.PaymentTransaction;
+import com.social.marketing.order.entity.*;
 import com.social.marketing.order.model.request.OrderEntryRequest;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
@@ -67,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
 
     private List<OrderEntry> buildOrderEntries(List<OrderEntryRequest> entriesRequest, Order order) {
         List<OrderEntry> entries = new ArrayList<>();
-        if (CollectionUtils.isEmpty(entriesRequest)){
+        if (CollectionUtils.isEmpty(entriesRequest)) {
             throw new BadRequestException("No product selected.");
         }
         entriesRequest.forEach(entryRequest -> {
@@ -150,23 +147,19 @@ public class OrderServiceImpl implements OrderService {
 
     private PaymentTransaction buildPaymentTransaction(PayOSRequestPaymentResponse response, Order order) {
         PaymentTransaction paymentTransaction = new PaymentTransaction();
-        paymentTransaction.setBin(response.getData().getBin());
-        paymentTransaction.setAccountNumber(response.getData().getAccountNumber());
-        paymentTransaction.setAccountName(response.getData().getAccountName());
-        paymentTransaction.setAmount(BigDecimal.valueOf(response.getData().getAmount()));
-        paymentTransaction.setDescription(response.getData().getDescription());
-        paymentTransaction.setCurrencyCode(response.getData().getCurrency());
-        paymentTransaction.setStatus(response.getData().getStatus());
-        paymentTransaction.setCheckoutUrl(response.getData().getCheckoutUrl());
-        paymentTransaction.setQrCode(response.getData().getQrCode());
-        paymentTransaction.setExternalId(response.getData().getPaymentLinkId());
+        paymentTransaction.setAmount(response.getAmount());
+        paymentTransaction.setDescription(response.getDescription());
+        paymentTransaction.setCurrencyCode(response.getCurrency());
+        paymentTransaction.setProvider(PaymentProvider.PAY_OS);
+        paymentTransaction.setCheckoutUrl(response.getCheckoutUrl());
+        paymentTransaction.setExternalId(response.getPaymentLinkId());
         paymentTransaction.setOrder(order);
         return paymentTransaction;
     }
 
-    private PaymentResponse convertPaymentResponse(PayOSRequestPaymentResponse payOSRequestPaymentResponse) {
-        PaymentResponse paymentResponse = new PaymentResponse();
-        paymentResponse.setCheckoutUrl(payOSRequestPaymentResponse.getData().getCheckoutUrl());
-        return paymentResponse;
+    private PaymentResponse convertPaymentResponse(PayOSRequestPaymentResponse source) {
+        PaymentResponse target = new PaymentResponse();
+        target.setCheckoutUrl(source.getCheckoutUrl());
+        return target;
     }
 }

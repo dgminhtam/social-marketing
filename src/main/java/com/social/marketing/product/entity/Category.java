@@ -1,10 +1,12 @@
 package com.social.marketing.product.entity;
 
 import com.social.marketing.entity.AbstractEntity;
+import com.social.marketing.media.entity.Media;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.LazyGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +17,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "categories",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = "name")
+                @UniqueConstraint(columnNames = "code")
         }
 )
 public class Category extends AbstractEntity {
+
+    @Column(nullable = false)
+    private String code;
 
     @Column(nullable = false)
     private String name;
@@ -26,8 +31,9 @@ public class Category extends AbstractEntity {
     @Column
     private String description;
 
-    @Column
-    private String imageUrl;
+    @OneToOne(fetch = FetchType.LAZY)
+    @LazyGroup(Product.Fields.image)
+    private Media image;
 
     @Column
     private Boolean active = false;

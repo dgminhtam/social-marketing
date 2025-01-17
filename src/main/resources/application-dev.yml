@@ -40,5 +40,7 @@ payos:
   url: https://api-merchant.payos.vn
   cancel-url: http://localhost:3000/orders
   return-url: http://localhost:3000/orders
-  expired-at: 10
+  expired:
+    zone-id: Asia/Ho_Chi_Minh
+    minute: 10
   client-web-hook: https://webhooks-dev.digicommerce.cloud:3012/ws
