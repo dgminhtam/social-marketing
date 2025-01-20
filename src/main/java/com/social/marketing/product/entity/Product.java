@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
-import org.hibernate.annotations.LazyGroup;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ public class Product extends AbstractEntity {
     private Boolean isBase = false;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @LazyGroup(Fields.image)
     private Media image;
 
     @Column(nullable = false)

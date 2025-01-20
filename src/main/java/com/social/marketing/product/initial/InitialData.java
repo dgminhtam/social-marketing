@@ -8,11 +8,12 @@ import com.social.marketing.product.service.ProductService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 
-//@Component
+@Component
 public class InitialData {
 
     @Resource
