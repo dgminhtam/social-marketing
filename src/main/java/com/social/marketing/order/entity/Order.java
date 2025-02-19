@@ -1,7 +1,6 @@
 package com.social.marketing.order.entity;
 
 import com.social.marketing.entity.AbstractEntity;
-import com.social.marketing.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +19,9 @@ public class Order extends AbstractEntity {
 
     @Column
     private String email;
+
+    @Column
+    private String link;
 
     @Enumerated(value = EnumType.STRING)
     private OrderStatus status;

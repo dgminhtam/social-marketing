@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 public class OrderResponse {
     private Long id;
     private String email;
+    private String link;
     private OrderStatus status;
     private BigDecimal subTotal;
     private ZonedDateTime createDate;

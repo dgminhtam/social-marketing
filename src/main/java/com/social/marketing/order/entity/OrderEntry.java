@@ -8,8 +8,6 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -40,4 +38,5 @@ public class OrderEntry extends AbstractEntity {
 
     @Column
     private BigDecimal subTotal;
+
 }

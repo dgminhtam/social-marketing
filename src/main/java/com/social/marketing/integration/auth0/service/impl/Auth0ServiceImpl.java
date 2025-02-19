@@ -46,7 +46,7 @@ public class Auth0ServiceImpl implements Auth0Service {
             throw new RuntimeException("Authorization token is missing");
         }
         headers.set("Authorization", "Bearer " + token);
-        return restTemplateService.postData(properties.getIssuer() + USER_INFO_URL, headers, null, ResponseTypeFactory.createFor(Auth0UserInfoResponse.class));
+        return restTemplateService.getData(properties.getIssuer() + USER_INFO_URL, headers, ResponseTypeFactory.createFor(Auth0UserInfoResponse.class));
     }
 
     private String extractTokenFromRequest() {
