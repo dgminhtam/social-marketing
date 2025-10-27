@@ -1,7 +1,6 @@
 package com.social.marketing.product.controller;
 
 import com.social.marketing.product.entity.Product;
-import com.social.marketing.product.model.request.AssignProductsRequest;
 import com.social.marketing.product.model.request.ChangeStatusRequest;
 import com.social.marketing.product.model.request.CreateProductRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -54,20 +51,5 @@ public class ProductController {
     @PatchMapping("/{id}/status")
     public void changeStatus(@PathVariable Long id, @RequestBody ChangeStatusRequest request) {
         productService.changeStatus(id, request);
-    }
-
-    @PostMapping("/sync")
-    public void syncProducts() {
-        productService.syncProducts();
-    }
-
-    @GetMapping("/unassignment")
-    public List<ProductResponse> getProductsUnassignment() {
-        return productService.getProductsUnassignment();
-    }
-
-    @PostMapping("/{id}/assign")
-    public void assignProducts(@PathVariable Long id, @RequestBody AssignProductsRequest request) {
-        productService.assignProducts(id, request);
     }
 }

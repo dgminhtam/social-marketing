@@ -2,7 +2,6 @@ package com.social.marketing.product.service;
 
 import com.social.marketing.product.entity.Category;
 import com.social.marketing.product.entity.Product;
-import com.social.marketing.product.model.request.AssignProductsRequest;
 import com.social.marketing.product.model.request.ChangeStatusRequest;
 import com.social.marketing.product.model.request.CreateProductRequest;
 import com.social.marketing.product.model.request.UpdateProductRequest;
@@ -33,19 +32,13 @@ public interface ProductService {
 
     void changeStatus(Long id, ChangeStatusRequest request);
 
-    List<Product> getAllBySkus(List<String> skus);
-
     void saveAll(List<Product> products);
 
-    void syncProducts();
+    List<Product> getAllBySkus(List<String> skus);
 
     void convertUpdate(UpdateProductRequest source, Product target);
 
     List<ProductResponse> getProductsByCategory(Category category);
-
-    List<ProductResponse> getProductsUnassignment();
-
-    void assignProducts(Long id, AssignProductsRequest request);
 
     ProductDetailResponse createProduct(CreateProductRequest request);
 }

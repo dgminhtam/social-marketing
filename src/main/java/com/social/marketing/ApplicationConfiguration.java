@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.social.marketing.auth.SecurityProperties;
 import com.social.marketing.initialize.configuration.InitializeProperties;
-import com.social.marketing.integration.marketingxanh.configuration.MarketingxanhProperties;
 import com.social.marketing.integration.payos.configuration.PayOSProperties;
 import com.social.marketing.media.configuration.MediaProperties;
 import org.apache.tika.Tika;
@@ -26,7 +25,7 @@ import java.util.Optional;
 
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
-@EnableConfigurationProperties({MarketingxanhProperties.class, SecurityProperties.class, PayOSProperties.class, InitializeProperties.class, MediaProperties.class})
+@EnableConfigurationProperties({SecurityProperties.class, PayOSProperties.class, InitializeProperties.class, MediaProperties.class})
 public class ApplicationConfiguration {
 
     @Bean

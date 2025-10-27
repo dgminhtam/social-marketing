@@ -11,8 +11,6 @@ import com.social.marketing.product.repository.ProductRepository;
 import com.social.marketing.product.service.ClientCategoryService;
 import com.social.marketing.product.service.ClientProductService;
 import jakarta.annotation.Resource;
-import jakarta.persistence.criteria.Predicate;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +18,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,11 +37,7 @@ public class ClientProductServiceImpl implements ClientProductService {
     @Override
     public Page<ClientProductResponse> getBaseProducts(Specification<Product> specification, Pageable pageable) {
         Specification<Product> spec =
-                (root, query, builder) -> {
-                    Predicate byBase = builder.isNull(root.get(Product.Fields.base));
-                    Predicate byStatus = builder.equal(root.get(Product.Fields.status), ProductStatus.APPROVED);
-                    return builder.and(byBase, byStatus);
-                };
+                (root, query, builder) -> builder.equal(root.get(Product.Fields.status), ProductStatus.APPROVED);
         Page<Product> products = productRepository.findAll(Objects.nonNull(specification) ? spec.and(specification) : spec, pageable);
         List<ClientProductResponse> clientProductResponses = products.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(clientProductResponses, products.getPageable(), products.getTotalElements());
@@ -76,25 +69,11 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
         response.setName(product.getName());
-        response.setMinOrderQuantity(product.getMinOrderQuantity());
-        response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         Category category = product.getCategory();
         if (Objects.nonNull(category)) {
             response.setCategory(clientCategoryService.convert(category));
         }
         response.setImage(mediaService.convert(product.getImage()));
-        List<Product> variants = product.getVariants();
-        if (CollectionUtils.isNotEmpty(variants)) {
-            List<ClientProductDetailResponse> variantResponses = variants.stream()
-                    .filter(variant -> ProductStatus.APPROVED.equals(variant.getStatus()))
-                    .map(this::convertDetail)
-                    .toList();
-            variantResponses.stream()
-                    .map(ClientProductDetailResponse::getPrice)
-                    .filter(Objects::nonNull)
-                    .min(Comparator.naturalOrder())
-                    .ifPresent(response::setLowPrice);
-        }
         return response;
     }
 
@@ -112,31 +91,11 @@ public class ClientProductServiceImpl implements ClientProductService {
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(Objects.nonNull(product.getPrice()) ? product.getPrice() : BigDecimal.ZERO);
-        response.setMinOrderQuantity(product.getMinOrderQuantity());
-        response.setMaxOrderQuantity(product.getMaxOrderQuantity());
         Category category = product.getCategory();
         if (Objects.nonNull(category)) {
             response.setCategory(clientCategoryService.convert(category));
         }
         response.setImage(mediaService.convert(product.getImage()));
-        List<Product> variants = product.getVariants();
-        if (CollectionUtils.isNotEmpty(variants)) {
-            List<ClientProductDetailResponse> variantResponses = variants.stream()
-                    .filter(variant -> ProductStatus.APPROVED.equals(variant.getStatus()))
-                    .map(this::convertDetail)
-                    .toList();
-            response.setVariants(variantResponses);
-
-            variantResponses.stream()
-                    .map(ClientProductDetailResponse::getPrice)
-                    .min(Comparator.naturalOrder())
-                    .ifPresent(response::setLowPrice);
-
-            variantResponses.stream()
-                    .map(ClientProductDetailResponse::getPrice)
-                    .max(Comparator.naturalOrder())
-                    .ifPresent(response::setHighPrice);
-        }
         return response;
     }
 }

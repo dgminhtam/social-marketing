@@ -114,7 +114,6 @@ public class InitialData {
         product.setDescription("Auto-generated product for " + name);
         product.setCategory(category);
         product.setStatus(ProductStatus.DRAFT);
-        product.setIsBase(true);
         return product;
     }
 }
