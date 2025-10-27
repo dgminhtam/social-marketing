@@ -71,9 +71,6 @@ public class OrderServiceImpl implements OrderService {
         entriesRequest.forEach(entryRequest -> {
             OrderEntry orderEntry = new OrderEntry();
             Product product = productService.getBySku(entryRequest.sku());
-            if (Objects.isNull(product.getBase()) && CollectionUtils.isNotEmpty(product.getVariants())) {
-                throw new BadRequestException("Can't place order because the product is base.");
-            }
             BigDecimal price = product.getPrice();
             if (Objects.isNull(price)) {
                 throw new BadRequestException("Product price cannot be null.");
