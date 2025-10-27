@@ -37,12 +37,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    @Override
-    public void initUsers() {
-        User user = new User();
-        user.setEmail("tamduong633@gmail.com");
-    }
-
     private UserResponse convert(User user, Auth0UserInfoResponse response) {
         return new UserResponse(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getGender(), response.getPicture());
     }
