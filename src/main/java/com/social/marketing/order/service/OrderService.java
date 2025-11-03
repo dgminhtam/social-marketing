@@ -3,7 +3,6 @@ package com.social.marketing.order.service;
 import com.social.marketing.order.entity.Order;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
-import com.social.marketing.order.model.response.PaymentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,8 +16,6 @@ public interface OrderService {
     Page<OrderResponse> getOrders(Specification<Order> specification, Pageable pageable);
 
     Order getOrderById(Long id);
-
-    PaymentResponse requestPayment(Long id);
 
     Page<OrderResponse> getOrdersByEmail(String email, Specification<Order> specification, Pageable pageable);
 

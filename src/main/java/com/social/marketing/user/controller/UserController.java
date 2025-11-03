@@ -16,6 +16,6 @@ public class UserController {
 
     @GetMapping(value = "/profile")
     public UserResponse getProfile() {
-        return userService.getCurrentUser();
+        return null;
     }
 }

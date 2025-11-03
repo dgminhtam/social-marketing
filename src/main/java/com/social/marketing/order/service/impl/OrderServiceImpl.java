@@ -2,14 +2,12 @@ package com.social.marketing.order.service.impl;
 
 import com.social.marketing.exception.BadRequestException;
 import com.social.marketing.exception.NotFoundException;
-import com.social.marketing.integration.payos.model.request.PayOSRequestPaymentRequest;
-import com.social.marketing.integration.payos.model.response.PayOSRequestPaymentResponse;
-import com.social.marketing.integration.payos.service.PayOSService;
-import com.social.marketing.order.entity.*;
+import com.social.marketing.order.entity.Order;
+import com.social.marketing.order.entity.OrderEntry;
+import com.social.marketing.order.entity.OrderStatus;
 import com.social.marketing.order.model.request.OrderEntryRequest;
 import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
-import com.social.marketing.order.model.response.PaymentResponse;
 import com.social.marketing.order.repository.OrderRepository;
 import com.social.marketing.order.service.OrderService;
 import com.social.marketing.product.entity.Product;
@@ -37,9 +35,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Resource
     private OrderRepository orderRepository;
-
-    @Resource
-    private PayOSService payOSService;
 
     @Override
     @Transactional
@@ -117,20 +112,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PaymentResponse requestPayment(Long id) {
-        Order order = getOrderById(id);
-        PayOSRequestPaymentRequest paymentRequest = new PayOSRequestPaymentRequest();
-        paymentRequest.setOrderCode(order.getId());
-        paymentRequest.setAmount(order.getSubTotal().intValue());
-        paymentRequest.setDescription(order.getId().toString());
-        PayOSRequestPaymentResponse response = payOSService.requestPayment(paymentRequest);
-        PaymentTransaction paymentTransaction = buildPaymentTransaction(response, order);
-        order.getPaymentTransactions().add(paymentTransaction);
-        orderRepository.save(order);
-        return convertPaymentResponse(response);
-    }
-
-    @Override
     public Page<OrderResponse> getOrdersByEmail(String email, Specification<Order> specification, Pageable pageable) {
         Specification<Order> spec =
                 (root, query, builder) -> builder.equal(root.get(Order.Fields.email), email);
@@ -142,23 +123,5 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void save(Order order) {
         orderRepository.save(order);
-    }
-
-    private PaymentTransaction buildPaymentTransaction(PayOSRequestPaymentResponse response, Order order) {
-        PaymentTransaction paymentTransaction = new PaymentTransaction();
-        paymentTransaction.setAmount(response.getAmount());
-        paymentTransaction.setDescription(response.getDescription());
-        paymentTransaction.setCurrencyCode(response.getCurrency());
-        paymentTransaction.setProvider(PaymentProvider.PAY_OS);
-        paymentTransaction.setCheckoutUrl(response.getCheckoutUrl());
-        paymentTransaction.setExternalId(response.getPaymentLinkId());
-        paymentTransaction.setOrder(order);
-        return paymentTransaction;
-    }
-
-    private PaymentResponse convertPaymentResponse(PayOSRequestPaymentResponse source) {
-        PaymentResponse target = new PaymentResponse();
-        target.setCheckoutUrl(source.getCheckoutUrl());
-        return target;
     }
 }

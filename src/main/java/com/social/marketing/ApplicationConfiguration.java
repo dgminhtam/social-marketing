@@ -4,18 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.social.marketing.initialize.configuration.InitializeProperties;
-import com.social.marketing.integration.payos.configuration.PayOSProperties;
 import com.social.marketing.media.configuration.MediaProperties;
 import org.apache.tika.Tika;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -24,7 +20,7 @@ import java.util.Optional;
 
 @Configuration
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
-@EnableConfigurationProperties({SecurityProperties.class, PayOSProperties.class, InitializeProperties.class, MediaProperties.class})
+@EnableConfigurationProperties({SecurityProperties.class, InitializeProperties.class, MediaProperties.class})
 public class ApplicationConfiguration {
 
     @Bean
@@ -43,14 +39,5 @@ public class ApplicationConfiguration {
     @Bean
     public Tika tika() {
         return new Tika();
-    }
-
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        return template;
     }
 }
