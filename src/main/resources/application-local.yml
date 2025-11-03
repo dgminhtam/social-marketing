@@ -23,6 +23,13 @@ spring:
     redis:
       host: localhost
       port: 6379
+  spring:
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            jwk-set-uri: https://composed-ocelot-3.clerk.accounts.dev/.well-known/jwks.json
+            issuer-uri: https://composed-ocelot-3.clerk.accounts.dev
 
 marketingxanh:
   url: https://marketingxanh.com/api/v1
