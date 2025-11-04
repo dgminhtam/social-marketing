@@ -6,10 +6,6 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-security:
-  enabled: false
-  publicEndpoint:
-    location: /auth/endpoint.config.json
 
 file:
   upload-dir: uploads/images/

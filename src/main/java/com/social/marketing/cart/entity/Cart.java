@@ -1,6 +1,7 @@
-package com.social.marketing.order.entity;
+package com.social.marketing.cart.entity;
 
 import com.social.marketing.entity.AbstractEntity;
+import com.social.marketing.order.entity.OrderEntry;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,15 +14,12 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "orders")
+@Table(name = "carts")
 @FieldNameConstants
-public class Order extends AbstractEntity {
+public class Cart extends AbstractEntity {
 
     @Column
     private String email;
-
-    @Enumerated(value = EnumType.STRING)
-    private OrderStatus status;
 
     @Column
     private String description;
@@ -33,8 +31,5 @@ public class Order extends AbstractEntity {
     private BigDecimal grandTotal;
 
     @OneToMany(mappedBy = OrderEntry.Fields.order, cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private List<OrderEntry> entries = new ArrayList<>();
-
-    @OneToMany(mappedBy = PaymentTransaction.Fields.order, cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+    private List<CartEntry> entries = new ArrayList<>();
 }

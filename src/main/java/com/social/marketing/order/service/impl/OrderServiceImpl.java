@@ -10,8 +10,8 @@ import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.repository.OrderRepository;
 import com.social.marketing.order.service.OrderService;
-import com.social.marketing.product.entity.Product;
-import com.social.marketing.product.service.ClientProductService;
+import com.social.marketing.pcm.entity.Product;
+import com.social.marketing.pcm.service.StorefrontProductService;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,7 +31,7 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
 
     @Resource
-    private ClientProductService productService;
+    private StorefrontProductService productService;
 
     @Resource
     private OrderRepository orderRepository;

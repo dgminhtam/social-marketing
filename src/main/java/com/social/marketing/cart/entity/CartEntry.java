@@ -1,4 +1,4 @@
-package com.social.marketing.order.entity;
+package com.social.marketing.cart.entity;
 
 import com.social.marketing.entity.AbstractEntity;
 import com.social.marketing.pcm.entity.Product;
@@ -12,13 +12,13 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(name = "order_entries")
+@Table(name = "cart_entries")
 @FieldNameConstants
-public class OrderEntry extends AbstractEntity {
+public class CartEntry extends AbstractEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
     @Column
     private String name;

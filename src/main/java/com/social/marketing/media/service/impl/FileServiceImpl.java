@@ -2,9 +2,8 @@ package com.social.marketing.media.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.media.service.FileService;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -14,11 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-@Service
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
-    @Resource
-    private Tika tika;
+    private final Tika tika;
 
     @Override
     public String uploadFile(MultipartFile file, String path) {

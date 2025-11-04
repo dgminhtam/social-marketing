@@ -7,25 +7,21 @@ import com.social.marketing.media.model.response.MediaResponse;
 import com.social.marketing.media.respository.MediaRepository;
 import com.social.marketing.media.service.FileService;
 import com.social.marketing.media.service.MediaService;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
-@Service
+@RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
 
-    @Resource
-    private MediaRepository mediaRepository;
+    private final MediaRepository mediaRepository;
 
-    @Resource
-    private FileService fileService;
+    private final FileService fileService;
 
-    @Resource
-    private MediaProperties properties;
+    private final MediaProperties properties;
 
     @Transactional
     @Override

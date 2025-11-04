@@ -24,6 +24,7 @@ public class Media extends AbstractEntity {
     private String altText;
 
     @Column
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String description;
 
     @Column
@@ -39,6 +40,5 @@ public class Media extends AbstractEntity {
     private String path;
 
     @Column
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String url;
 }
