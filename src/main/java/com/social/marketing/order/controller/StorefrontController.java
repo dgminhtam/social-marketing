@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/client/orders")
-public class ClientOrderController {
+public class StorefrontController {
 
     @Resource
     private OrderService orderService;

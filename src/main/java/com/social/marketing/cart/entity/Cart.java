@@ -1,7 +1,6 @@
 package com.social.marketing.cart.entity;
 
 import com.social.marketing.entity.AbstractEntity;
-import com.social.marketing.order.entity.OrderEntry;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +29,6 @@ public class Cart extends AbstractEntity {
     @Column
     private BigDecimal grandTotal;
 
-    @OneToMany(mappedBy = OrderEntry.Fields.order, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = CartEntry.Fields.cart, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<CartEntry> entries = new ArrayList<>();
 }

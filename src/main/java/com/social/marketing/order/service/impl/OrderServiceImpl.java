@@ -31,7 +31,7 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
 
     @Resource
-    private StorefrontProductService productService;
+    private StorefrontProductService storefrontProductService;
 
     @Resource
     private OrderRepository orderRepository;
@@ -47,7 +47,6 @@ public class OrderServiceImpl implements OrderService {
     private Order buildOrder(PlaceOrderRequest request) {
         Order order = new Order();
         order.setEmail(request.email());
-        order.setLink(request.link());
         order.setDescription(request.description());
         order.setStatus(OrderStatus.OPEN);
         List<OrderEntry> entries = buildOrderEntries(request.entries(), order);
@@ -65,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
         }
         entriesRequest.forEach(entryRequest -> {
             OrderEntry orderEntry = new OrderEntry();
-            Product product = productService.getBySku(entryRequest.sku());
+            Product product = storefrontProductService.getBySku(entryRequest.sku());
             BigDecimal price = product.getPrice();
             if (Objects.isNull(price)) {
                 throw new BadRequestException("Product price cannot be null.");
@@ -87,7 +86,6 @@ public class OrderServiceImpl implements OrderService {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setId(order.getId());
         orderResponse.setEmail(order.getEmail());
-        orderResponse.setLink(order.getLink());
         orderResponse.setStatus(order.getStatus());
         orderResponse.setSubTotal(order.getSubTotal());
         orderResponse.setCreateDate(order.getCreatedDate());

@@ -49,11 +49,6 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.okta.spring</groupId>
-            <artifactId>okta-spring-boot-starter</artifactId>
-            <version>3.0.5</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.18.0</version>
