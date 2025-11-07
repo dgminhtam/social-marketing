@@ -6,11 +6,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface MediaService {
 
-    Media create(MultipartFile file);
-
     void delete(Media media);
 
     void validateMultipartFile(MultipartFile file);
 
     MediaResponse convert(Media media);
+
+    Media create(MultipartFile file);
+
+    MediaResponse upload(MultipartFile file);
 }

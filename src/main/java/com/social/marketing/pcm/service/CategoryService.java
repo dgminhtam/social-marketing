@@ -18,8 +18,6 @@ public interface CategoryService {
 
     void saveAll(List<Category> categories);
 
-    List<Category> getAllByNames(Set<String> names);
-
     Page<CategoryResponse> getCategories(Specification<Category> specification, Pageable pageable);
 
     void save(Category rootCategory);
@@ -36,6 +34,6 @@ public interface CategoryService {
 
     CategoryResponse convert(Category category);
 
-    Category findByCode(String categoryCode);
+    Category findBySlug(String categorySlug);
 }
 

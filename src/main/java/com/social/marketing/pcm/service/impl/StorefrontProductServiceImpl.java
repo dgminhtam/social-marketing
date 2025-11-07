@@ -37,7 +37,7 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
     @Override
     public Page<StorefrontProductResponse> getBaseProducts(Specification<Product> specification, Pageable pageable) {
         Specification<Product> spec =
-                (root, query, builder) -> builder.equal(root.get(Product.Fields.status), ProductStatus.APPROVED);
+                (root, query, builder) -> builder.equal(root.get(Product.Fields.status), ProductStatus.PUBLISHED);
         Page<Product> products = productRepository.findAll(Objects.nonNull(specification) ? spec.and(specification) : spec, pageable);
         List<StorefrontProductResponse> storefrontProductRespons = products.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(storefrontProductRespons, products.getPageable(), products.getTotalElements());

@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/categories")
 public class CategoryController {
@@ -21,8 +23,13 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    public Page<CategoryResponse> getCategories(@Search Specification<Category> specification, Pageable pageable) {
+    public Page<CategoryResponse> getCategoryTree(@Search Specification<Category> specification, Pageable pageable) {
         return categoryService.getCategories(specification, pageable);
+    }
+
+    @GetMapping("/tree")
+    public List<CategoryResponse> getCategoryTree() {
+        return categoryService.getCategoryTree();
     }
 
     @GetMapping("/{id}")

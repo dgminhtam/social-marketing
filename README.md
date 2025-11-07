@@ -1,1 +1,2 @@
-"# social-marketing" 
+"# social-marketing"
+mvn package

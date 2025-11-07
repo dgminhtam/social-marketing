@@ -16,16 +16,16 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "categories",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = "code")
+                @UniqueConstraint(columnNames = "slug")
         }
 )
 public class Category extends AbstractEntity {
 
     @Column(nullable = false)
-    private String code;
+    private String name;
 
     @Column(nullable = false)
-    private String name;
+    private String slug;
 
     @Column
     private String description;
@@ -34,7 +34,7 @@ public class Category extends AbstractEntity {
     private Media image;
 
     @Column
-    private Boolean active = false;
+    private boolean active = false;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")

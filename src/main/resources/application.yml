@@ -6,11 +6,3 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-
-file:
-  upload-dir: uploads/images/
-  max-size: 5242880
-  accept-mime-types:
-    - image/jpeg
-    - image/png
-    - image/webp

@@ -16,8 +16,8 @@ import org.springframework.context.annotation.Configuration;
 public class PcmConfiguration {
 
     @Bean
-    public CategoryService categoryService(CategoryRepository categoryRepository) {
-        return new CategoryServiceImpl(categoryRepository);
+    public CategoryService categoryService(CategoryRepository categoryRepository, MediaService mediaService) {
+        return new CategoryServiceImpl(categoryRepository, mediaService);
     }
 
     @Bean

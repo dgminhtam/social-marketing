@@ -3,6 +3,7 @@ package com.social.marketing.media.service.impl;
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.media.configuration.MediaProperties;
 import com.social.marketing.media.entity.Media;
+import com.social.marketing.media.model.request.UploadResult;
 import com.social.marketing.media.model.response.MediaResponse;
 import com.social.marketing.media.respository.MediaRepository;
 import com.social.marketing.media.service.FileService;
@@ -12,38 +13,20 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Objects;
 
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
 
     private final MediaRepository mediaRepository;
-
     private final FileService fileService;
-
     private final MediaProperties properties;
 
     @Transactional
     @Override
-    public Media create(MultipartFile file) {
-        validateMultipartFile(file);
-        Media media = new Media();
-        media.setFileName(file.getOriginalFilename());
-        media.setRealFileName(file.getOriginalFilename());
-        media.setDescription(file.getOriginalFilename());
-        media.setFileSizeInByte(file.getSize());
-        media.setAltText(file.getOriginalFilename());
-        media.setPath(properties.getUploadDir());
-        media.setUrl(fileService.uploadFile(file, properties.getUploadDir()));
-        media.setMimeType(fileService.detachMimeType(file));
-        return mediaRepository.save(media);
-    }
-
-    @Transactional
-    @Override
     public void delete(Media media) {
-        fileService.deleteFile(media.getFileName(), media.getPath());
-        mediaRepository.delete(media);
+        //TODO
     }
 
     @Override
@@ -55,7 +38,12 @@ public class MediaServiceImpl implements MediaService {
         if (file.getSize() > properties.getMaxSize()) {
             throw new IllegalArgumentException("File exceeds maximum size of " + properties.getMaxSize() + " bytes.");
         }
-        String mimeType = fileService.detachMimeType(file);
+        String mimeType;
+        try {
+            mimeType = fileService.detachMimeType(file.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (!properties.getAcceptMimeTypes().contains(mimeType)) {
             throw new IllegalArgumentException("File type not allowed: " + mimeType);
         }
@@ -68,5 +56,24 @@ public class MediaServiceImpl implements MediaService {
             BeanUtils.copyProperties(media, mediaResponse);
         }
         return mediaResponse;
+    }
+
+    @Transactional
+    @Override
+    public Media create(MultipartFile file) {
+        validateMultipartFile(file);
+        UploadResult result = fileService.uploadAndCreateVariants(file);
+        Media media = new Media();
+        media.setAltText(result.getAltText());
+        media.setFileSizeInByte(result.getFileSizeInByte());
+        media.setMimeType(result.getMimeType());
+        media.setUrlOriginal(result.getUrlOriginal());
+        media.setVariants(result.getVariants());
+        return mediaRepository.save(media);
+    }
+
+    @Override
+    public MediaResponse upload(MultipartFile file) {
+        return convert(create(file));
     }
 }

@@ -9,8 +9,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 
+import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 //@Component
 public class InitialData {
@@ -21,6 +24,10 @@ public class InitialData {
     @Resource
     private ProductService productService;
 
+    private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+    private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
+    private static final Pattern EDGESDHASHES = Pattern.compile("(^-|-$)");
+
     @PostConstruct
     @Transactional
     public void init() {
@@ -30,24 +37,19 @@ public class InitialData {
 
     private void initCategory() {
         List<Category> categories = List.of(
-                createCategory("bigo", "Bigo", "Live Streaming Platform"),
-                createCategory("facebook", "Facebook", "Social Media Platform"),
-                createCategory("spotify", "Spotify", "Music Streaming Platform"),
-                createCategory("instagram", "Instagram", "Photo & Video Sharing Platform"),
-                createCategory("tiktok", "TikTok", "Short Video Sharing Platform"),
-                createCategory("threads", "Threads", "Text-based Social Networking Platform"),
-                createCategory("shopee", "Shopee", "E-Commerce Platform"),
-                createCategory("youtube", "YouTube", "Video Sharing Platform"),
-                createCategory("twitter", "Twitter", "Microblogging Platform"),
-                createCategory("telegram", "Telegram", "Messaging Platform"),
-                createCategory("google", "Google", "Search & Technology Platform")
+                createCategory("hoa-tinh-yeu", "Hoa Tình Yêu", "Dành tặng cho người bạn yêu thương."),
+                createCategory("hoa-khai-truong", "Hoa Khai Trương", "Chúc mừng khởi đầu hồng phát."),
+                createCategory("hoa-sinh-nhat", "Hoa Sinh Nhật", "Món quà ý nghĩa trong ngày đặc biệt."),
+                createCategory("hoa-chia-buon", "Hoa Chia Buồn", "Gửi lời chia buồn sâu sắc."),
+                createCategory("bo-hoa", "Bó Hoa", "Các loại hoa được bó gọn gàng, tinh tế."),
+                createCategory("lang-hoa", "Lẵng Hoa", "Các lẵng hoa/giỏ hoa sang trọng.")
         );
         categoryService.saveAll(categories);
     }
 
-    private Category createCategory(String code, String name, String description) {
+    private Category createCategory(String slug, String name, String description) {
         Category category = new Category();
-        category.setCode(code);
+        category.setSlug(slug);
         category.setName(name);
         category.setDescription(description);
         category.setActive(true);
@@ -56,64 +58,37 @@ public class InitialData {
 
     private void initProduct() {
         List<Product> products = List.of(
-                createProduct("threads", "Bình luận"),
-                createProduct("youtube", "Bình luận"),
-                createProduct("threads", "Chia sẻ"),
-                createProduct("spotify", "Tăng followers"),
-                createProduct("facebook", "Like Bình luận"),
-                createProduct("facebook", "Like bài viết"),
-                createProduct("facebook", "Like page"),
-                createProduct("shopee", "Like sản phẩm"),
-                createProduct("threads", "Tăng like"),
-                createProduct("tiktok", "Tăng like"),
-                createProduct("twitter", "Tăng like"),
-                createProduct("youtube", "Tăng like"),
-                createProduct("bigo", "Live Stream"),
-                createProduct("youtube", "Live"),
-                createProduct("youtube", "Lượt xem"),
-                createProduct("twitter", "Mắt live"),
-                createProduct("telegram", "Post view"),
-                createProduct("telegram", "Reactions"),
-                createProduct("facebook", "Review + đánh giá page"),
-                createProduct("instagram", "Tăng theo dõi"),
-                createProduct("facebook", "Tăng theo dõi"),
-                createProduct("threads", "Tăng theo dõi"),
-                createProduct("twitter", "Tăng theo dõi"),
-                createProduct("youtube", "Tăng theo dõi"),
-                createProduct("instagram", "Tim bài viết"),
-                createProduct("instagram", "Tăng bình luận"),
-                createProduct("facebook", "Tăng bình luận"),
-                createProduct("tiktok", "Tăng comment"),
-                createProduct("tiktok", "Tăng lượt xem video"),
-                createProduct("facebook", "Tăng member group"),
-                createProduct("telegram", "Tăng member nhóm"),
-                createProduct("facebook", "Tăng lượt xem livestream"),
-                createProduct("instagram", "Tăng lượt xem livestream"),
-                createProduct("tiktok", "Tăng lượt xem livestream"),
-                createProduct("tiktok", "Tăng save"),
-                createProduct("facebook", "Tăng share"),
-                createProduct("tiktok", "Tăng share"),
-                createProduct("tiktok", "Tăng theo dõi"),
-                createProduct("shopee", "Tăng theo dõi"),
-                createProduct("facebook", "Tăng view video"),
-                createProduct("instagram", "Tăng view story"),
-                createProduct("instagram", "Tăng view"),
-                createProduct("facebook", "View Story"),
-                createProduct("facebook", "Vip like"),
-                createProduct("twitter", "View"),
-                createProduct("google", "Đánh giá map")
+                createProduct("hoa-tinh-yeu", "Bó Hồng Đỏ Thắm", "Bó 12 hoa hồng đỏ Ecuado, biểu tượng tình yêu vĩnh cửu.", BigDecimal.valueOf(750000), ProductStatus.PUBLISHED),
+                createProduct("hoa-tinh-yeu", "Trái Tim Chung Đôi", "Lẵng hoa kết hình trái tim từ hồng trắng và baby.", BigDecimal.valueOf(1200000), ProductStatus.PUBLISHED),
+                createProduct("hoa-khai-truong", "Lẵng Hoa Phát Tài", "Lẵng hoa 2 tầng (đồng tiền, lan, hồng môn) chúc mừng khai trương.", BigDecimal.valueOf(2500000), ProductStatus.PUBLISHED),
+                createProduct("hoa-sinh-nhat", "Bó Hướng Dương Rực Rỡ", "Tặng người bạn thân, luôn hướng về phía mặt trời.", BigDecimal.valueOf(500000), ProductStatus.DRAFT),
+                createProduct("bo-hoa", "Bó Baby Trắng Nhẹ Nhàng", "Bó hoa baby trắng nhập khẩu Hà Lan.", BigDecimal.valueOf(400000), ProductStatus.PUBLISHED),
+                createProduct("lang-hoa", "Giỏ Hoa Cẩm Tú Cầu", "Giỏ hoa cẩm tú cầu xanh biếc.", BigDecimal.valueOf(650000), ProductStatus.PUBLISHED)
         );
         productService.saveAll(products);
     }
 
-    private Product createProduct(String categoryCode, String name) {
-        Category category = categoryService.findByCode(categoryCode);
+    private String generateSlug(String name) {
+        String nowhitespace = WHITESPACE.matcher(name).replaceAll("-");
+        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+        String slug = NONLATIN.matcher(normalized).replaceAll("");
+        slug = EDGESDHASHES.matcher(slug).replaceAll("");
+        return slug.toLowerCase();
+    }
+
+    private Product createProduct(String categorySlug, String name, String description, BigDecimal price, ProductStatus status) {
+        Category category = categoryService.findBySlug(categorySlug);
+
         Product product = new Product();
-        product.setSku(UUID.randomUUID().toString());
+        product.setSku(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         product.setName(name);
-        product.setDescription("Auto-generated product for " + name);
+
+        product.setSlug(generateSlug(name));
+
+        product.setDescription(description);
+        product.setPrice(price);
         product.setCategory(category);
-        product.setStatus(ProductStatus.DRAFT);
+        product.setStatus(status);
         return product;
     }
 }

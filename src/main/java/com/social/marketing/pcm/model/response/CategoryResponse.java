@@ -1,5 +1,6 @@
 package com.social.marketing.pcm.model.response;
 
+import com.social.marketing.media.model.response.MediaResponse;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +14,11 @@ public class CategoryResponse {
 
     private String name;
 
-    private String description;
+    private String slug;
+
+    private boolean active;
+
+    private MediaResponse media;
 
     private List<CategoryResponse> children;
 

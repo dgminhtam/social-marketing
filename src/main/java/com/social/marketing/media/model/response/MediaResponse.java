@@ -1,21 +1,15 @@
 package com.social.marketing.media.model.response;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class MediaResponse {
-
-    private String fileName;
-
+    private long id;
     private String altText;
-
-    private String description;
-
-    private String realFileName;
-
-    private String mimeType;
-
-    private Long fileSizeInByte;
-
-    private String url;
+    private String urlOriginal;
+    private String urlLarge;
+    private String urlMedium;
+    private String urlThumbnail;
 }

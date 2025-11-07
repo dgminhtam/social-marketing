@@ -10,6 +10,8 @@ import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.Map;
+
 @Entity
 @Table(name = "medias")
 @Getter
@@ -17,18 +19,8 @@ import org.hibernate.type.SqlTypes;
 @FieldNameConstants
 public class Media extends AbstractEntity {
 
-    @Column
-    private String fileName;
-
-    @Column
+    @Column(nullable = false)
     private String altText;
-
-    @Column
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
-    private String description;
-
-    @Column
-    private String realFileName;
 
     @Column
     private String mimeType;
@@ -36,9 +28,10 @@ public class Media extends AbstractEntity {
     @Column
     private Long fileSizeInByte;
 
-    @Column
-    private String path;
+    @Column(nullable = false)
+    private String urlOriginal;
 
-    @Column
-    private String url;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, String> variants;
 }

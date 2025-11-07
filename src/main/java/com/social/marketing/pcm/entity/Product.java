@@ -23,6 +23,9 @@ public class Product extends AbstractEntity {
     private String name;
 
     @Column
+    private String slug;
+
+    @Column
     private String description;
 
     @Column
