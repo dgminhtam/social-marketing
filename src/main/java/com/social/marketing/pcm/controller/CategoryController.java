@@ -23,7 +23,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    public Page<CategoryResponse> getCategoryTree(@Search Specification<Category> specification, Pageable pageable) {
+    public Page<CategoryResponse> get(@Search Specification<Category> specification, Pageable pageable) {
         return categoryService.getCategories(specification, pageable);
     }
 

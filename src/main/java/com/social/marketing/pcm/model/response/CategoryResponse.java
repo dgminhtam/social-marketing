@@ -16,9 +16,11 @@ public class CategoryResponse {
 
     private String slug;
 
+    private String description;
+
     private boolean active;
 
-    private MediaResponse media;
+    private MediaResponse image;
 
     private List<CategoryResponse> children;
 

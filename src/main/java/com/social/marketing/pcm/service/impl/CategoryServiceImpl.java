@@ -1,6 +1,7 @@
 package com.social.marketing.pcm.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
+import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.service.MediaService;
 import com.social.marketing.pcm.entity.Category;
 import com.social.marketing.pcm.model.request.CreateCategoryRequest;
@@ -8,6 +9,7 @@ import com.social.marketing.pcm.model.request.UpdateCategoryRequest;
 import com.social.marketing.pcm.model.response.CategoryResponse;
 import com.social.marketing.pcm.repository.CategoryRepository;
 import com.social.marketing.pcm.service.CategoryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +19,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-public record CategoryServiceImpl(CategoryRepository categoryRepository,
-                                  MediaService mediaService) implements CategoryService {
+@RequiredArgsConstructor
+public class CategoryServiceImpl implements CategoryService {
+
+    private final CategoryRepository categoryRepository;
+    private final MediaService mediaService;
 
     @Override
     public Category getCategoryById(Long id) {
@@ -64,7 +69,11 @@ public record CategoryServiceImpl(CategoryRepository categoryRepository,
     public CategoryResponse updateCategory(Long id, UpdateCategoryRequest request) {
         Category category = getCategoryById(id);
         category.setName(request.name());
+        category.setSlug(request.slug());
+        category.setActive(request.active());
         category.setDescription(request.description());
+        Media image = mediaService.get(request.imageId());
+        category.setImage(image);
         categoryRepository.save(category);
         return convert(category);
     }
@@ -73,7 +82,11 @@ public record CategoryServiceImpl(CategoryRepository categoryRepository,
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         Category category = new Category();
         category.setName(request.name());
+        category.setSlug(request.slug());
+        category.setActive(request.active());
         category.setDescription(request.description());
+        Media image = mediaService.get(request.imageId());
+        category.setImage(image);
         categoryRepository.save(category);
         return convert(category);
     }
@@ -90,8 +103,9 @@ public record CategoryServiceImpl(CategoryRepository categoryRepository,
         categoryResponse.setId(category.getId());
         categoryResponse.setName(category.getName());
         categoryResponse.setSlug(category.getSlug());
+        categoryResponse.setDescription(category.getDescription());
         categoryResponse.setActive(category.isActive());
-        categoryResponse.setMedia(mediaService.convert(category.getImage()));
+        categoryResponse.setImage(mediaService.convert(category.getImage()));
         List<Category> children = category.getChildren();
         categoryResponse.setChildren(children.stream().map(this::convert).toList());
         categoryResponse.setCreatedDate(category.getCreatedDate().format(DateTimeFormatter.ISO_DATE_TIME));

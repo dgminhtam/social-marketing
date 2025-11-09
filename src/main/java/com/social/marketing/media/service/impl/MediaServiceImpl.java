@@ -9,12 +9,13 @@ import com.social.marketing.media.respository.MediaRepository;
 import com.social.marketing.media.service.FileService;
 import com.social.marketing.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
@@ -51,10 +52,21 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public MediaResponse convert(Media media) {
-        MediaResponse mediaResponse = new MediaResponse();
-        if (Objects.nonNull(media)) {
-            BeanUtils.copyProperties(media, mediaResponse);
+        if (Objects.isNull(media)) {
+            return null;
         }
+        MediaResponse mediaResponse = new MediaResponse();
+        mediaResponse.setId(media.getId());
+        mediaResponse.setAltText(media.getAltText());
+        mediaResponse.setUrlOriginal(media.getUrlOriginal());
+
+        Map<String, String> variants = media.getVariants();
+        if (variants != null) {
+            mediaResponse.setUrlLarge(variants.get("large"));
+            mediaResponse.setUrlMedium(variants.get("medium"));
+            mediaResponse.setUrlThumbnail(variants.get("thumbnail"));
+        }
+
         return mediaResponse;
     }
 
@@ -75,5 +87,11 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public MediaResponse upload(MultipartFile file) {
         return convert(create(file));
+    }
+
+    @Override
+    public Media get(long id) {
+        Optional<Media> mediaOpt = mediaRepository.findById(id);
+        return mediaOpt.orElse(null);
     }
 }

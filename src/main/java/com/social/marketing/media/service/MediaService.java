@@ -15,4 +15,6 @@ public interface MediaService {
     Media create(MultipartFile file);
 
     MediaResponse upload(MultipartFile file);
+
+    Media get(long id);
 }

@@ -8,15 +8,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,11 +27,21 @@ public class FileServiceImpl implements FileService {
     private final Tika tika;
     private final MediaProperties properties;
 
+    // 3. Lấy thông tin bucket từ application.yml
+    @Value("${application.cloudflare.r2.bucket-name}")
+    private String bucketName;
+
+    @Value("${application.cloudflare.r2.public-url}")
+    private String publicBucketUrl; // URL công khai của R2 (https://pub-...)
+
+    private final S3Client s3Client;
+
     private static final int LARGE_SIZE = 1000;
     private static final int MEDIUM_SIZE = 300;
     private static final int THUMBNAIL_SIZE = 150;
     private static final String WEBP_FORMAT = "webp";
     private static final double WEBP_QUALITY = 0.85;
+    private static final String WEBP_MIME_TYPE = "image/webp";
 
     @Override
     @Transactional
@@ -54,25 +64,27 @@ public class FileServiceImpl implements FileService {
         validateMimeTypeAndSize(file.getSize(), originalMimeType);
 
         String originalExtension = getExtensionFromMimeType(originalMimeType);
-        String originalFileName = originalFilenameBase + "-" + UUID.randomUUID() + "." + originalExtension;
-        String originalUrl = saveFileToLocal(fileBytes, originalFileName);
+        String originalObjectKey = "originals/" + originalFilenameBase + "-" + UUID.randomUUID() + "." + originalExtension;
+        String originalUrl = uploadToR2(fileBytes, originalObjectKey, originalMimeType);
 
         Map<String, String> variants = new HashMap<>();
 
         try {
             byte[] largeBytes = resizeImageToWebp(fileBytes, LARGE_SIZE, LARGE_SIZE);
-            String largeFileName = "large-" + originalFilenameBase + ".webp";
-            String largeUrl = saveFileToLocal(largeBytes, largeFileName);
+            String largeKey = "variants/large-" + originalFilenameBase + ".webp";
+            String largeUrl = uploadToR2(largeBytes, largeKey, WEBP_MIME_TYPE);
             variants.put("large", largeUrl);
 
+            // Medium (WebP)
             byte[] mediumBytes = resizeImageToWebp(fileBytes, MEDIUM_SIZE, MEDIUM_SIZE);
-            String mediumFileName = "medium-" + originalFilenameBase + ".webp";
-            String mediumUrl = saveFileToLocal(mediumBytes, mediumFileName);
+            String mediumKey = "variants/medium-" + originalFilenameBase + ".webp";
+            String mediumUrl = uploadToR2(mediumBytes, mediumKey, WEBP_MIME_TYPE);
             variants.put("medium", mediumUrl);
 
+            // Thumbnail (WebP)
             byte[] thumbBytes = resizeImageToWebp(fileBytes, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
-            String thumbFileName = "thumb-" + originalFilenameBase + ".webp";
-            String thumbUrl = saveFileToLocal(thumbBytes, thumbFileName);
+            String thumbKey = "variants/thumb-" + originalFilenameBase + ".webp";
+            String thumbUrl = uploadToR2(thumbBytes, thumbKey, WEBP_MIME_TYPE);
             variants.put("thumbnail", thumbUrl);
 
         } catch (IOException e) {
@@ -93,22 +105,21 @@ public class FileServiceImpl implements FileService {
 
     }
 
-    private String saveFileToLocal(byte[] fileBytes, String newFileName) {
-        String relativePath = properties.getUploadDir();
-        Path filePath = Paths.get(relativePath, newFileName);
+    /**
+     * 4. Hàm private mới: uploadToR2 (thay thế saveFileToLocal)
+     */
+    private String uploadToR2(byte[] fileBytes, String objectKey, String mimeType) {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey) // Tên file (đường dẫn) trên R2
+                .contentType(mimeType)
+                .build();
 
-        try {
-            Files.createDirectories(filePath.getParent());
-            Files.write(filePath, fileBytes);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save file.", e);
-        }
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileBytes));
 
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(relativePath)
-                .path("/")
-                .path(newFileName)
-                .toUriString();
+        // 5. Trả về URL công khai (Public URL)
+        // Rất quan trọng: R2 dùng URL public khác với endpoint API
+        return publicBucketUrl + "/" + objectKey;
     }
 
     private byte[] resizeImageToWebp(byte[] originalImage, int width, int height) throws IOException {

@@ -27,10 +27,11 @@ public class Category extends AbstractEntity {
     @Column(nullable = false)
     private String slug;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
     private Media image;
 
     @Column
