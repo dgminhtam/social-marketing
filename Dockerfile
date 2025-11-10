@@ -9,6 +9,11 @@ WORKDIR /app
 COPY pom.xml .
 COPY .mvn/ .mvn/
 
+# === THÊM 2 DÒNG SỬA LỖI Ở ĐÂY ===
+COPY mvnw .
+RUN chmod +x mvnw
+# ================================
+
 # Copy toàn bộ source code
 COPY src ./src
 
