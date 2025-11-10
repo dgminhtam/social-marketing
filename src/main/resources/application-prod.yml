@@ -1,8 +1,11 @@
+server:
+  port: ${PORT:8080}
+
 spring:
   datasource:
-    url: jdbc:postgresql://ep-lively-meadow-a1kdv5gu-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
-    username: neondb_owner
-    password: JGg8wmKpFU5P
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -23,5 +26,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://composed-ocelot-3.clerk.accounts.dev/.well-known/jwks.json
-          issuer-uri: https://composed-ocelot-3.clerk.accounts.dev
+          jwk-set-uri: ${CLERK_ISSUER_URL}/.well-known/jwks.json
+          issuer-uri: ${CLERK_ISSUER_URL}
+
+application:
+  cloudflare:
+    r2:
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRET_KEY}
+      endpoint: ${ENDPOINT}
+      bucket-name: ${BUCKET_NAME}
+      public-url: ${PUBLIC_URL}

@@ -4,7 +4,7 @@ import com.social.marketing.media.configuration.MediaProperties;
 import com.social.marketing.media.respository.MediaRepository;
 import com.social.marketing.media.service.FileService;
 import com.social.marketing.media.service.MediaService;
-import com.social.marketing.media.service.impl.FileServiceImpl;
+import com.social.marketing.media.service.impl.R2FileServiceImpl;
 import com.social.marketing.media.service.impl.MediaServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
@@ -31,16 +31,15 @@ public class MediaConfiguration {
     private String secretKey;
 
     @Value("${application.cloudflare.r2.endpoint}")
-    private String endpoint; // Endpoint của R2
+    private String endpoint;
 
     @Bean
     public S3Client s3Client() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
         return S3Client.builder()
-                .region(Region.of("auto")) // 'auto'
+                .region(Region.of("auto"))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                // Dòng quan trọng nhất: Chỉ định endpoint là R2
                 .endpointOverride(URI.create(endpoint))
                 .build();
     }
@@ -52,7 +51,7 @@ public class MediaConfiguration {
 
     @Bean
     public FileService fileService(Tika tika, MediaProperties properties, S3Client s3Client) {
-        return new FileServiceImpl(tika, properties, s3Client);
+        return new R2FileServiceImpl(tika, properties, s3Client);
     }
 
     @Bean

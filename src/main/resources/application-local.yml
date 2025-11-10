@@ -25,3 +25,12 @@ spring:
         jwt:
           jwk-set-uri: https://composed-ocelot-3.clerk.accounts.dev/.well-known/jwks.json
           issuer-uri: https://composed-ocelot-3.clerk.accounts.dev
+
+application:
+  cloudflare:
+    r2:
+      access-key: ca6645ce8dcdce04967659197d7e1fc4
+      secret-key: 4411e9006fc8b4bfaf86add03b77c6dd0d860646eb9f8efc21359d5e21bcf7be
+      endpoint: https://de9839fed8fbc963df536854ed096e78.r2.cloudflarestorage.com
+      bucket-name: aflower
+      public-url: https://pub-385a99dd700a4d468b195ab2a2b2b555.r2.dev

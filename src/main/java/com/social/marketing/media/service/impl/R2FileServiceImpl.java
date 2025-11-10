@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class FileServiceImpl implements FileService {
+public class R2FileServiceImpl implements FileService {
 
     private final Tika tika;
     private final MediaProperties properties;
