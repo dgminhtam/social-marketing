@@ -90,7 +90,10 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
-    public Media get(long id) {
+    public Media get(Long id) {
+        if (id == null) {
+            return null;
+        }
         Optional<Media> mediaOpt = mediaRepository.findById(id);
         return mediaOpt.orElse(null);
     }
