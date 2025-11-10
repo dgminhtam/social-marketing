@@ -19,32 +19,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
       jdbc:
         time_zone: UTC
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
-marketingxanh:
-  url: https://marketingxanh.com/api/v1
-  key: j5P2jlUAtLdcuzZL6zr9zLuGzJQdIR4J
-
-okta:
-  oauth2:
-    clientId: qNlUEGKjdLrkrvrRUEKhJ8FOtnPnh4An
-    clientSecret: D3IcG1gY4vbXgKHFWYIVMJg5uFi11wP6O_op532iY0TltOOCEmUNWBwAZdi2m8wA
-    issuer: https://dev-khdq8r1qzh4hxf7o.us.auth0.com/
-    audience: https://social-marketing.com
-init:
-  management-audience: https://dev-khdq8r1qzh4hxf7o.us.auth0.com/api/v2/
-
-payos:
-  client-id: 256bacb9-f155-47bc-9d69-355c864bd01d
-  api-key: 818b1415-aa7d-4591-a3b5-53db332ef537
-  checksum-key: 38a8cbeca381726913f4c82fd0d27f46c45b4a99af17e2bd22f18b3b76046bbd
-  url: https://api-merchant.payos.vn
-  cancel-url: http://localhost:3000/orders
-  return-url: http://localhost:3000/orders
-  expired:
-    zone-id: Asia/Ho_Chi_Minh
-    minute: 10
-  client-web-hook: https://webhooks-dev.digicommerce.cloud:3012/ws
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://composed-ocelot-3.clerk.accounts.dev/.well-known/jwks.json
+          issuer-uri: https://composed-ocelot-3.clerk.accounts.dev
