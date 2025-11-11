@@ -14,4 +14,5 @@ public class MediaProperties {
     private Long maxSize;
 
     private List<String> acceptMimeTypes;
+    
 }

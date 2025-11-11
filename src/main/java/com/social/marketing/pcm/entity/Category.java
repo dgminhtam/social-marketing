@@ -41,6 +41,6 @@ public class Category extends AbstractEntity {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = Fields.parent, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = Fields.parent)
     private List<Category> children = new ArrayList<>();
 }
