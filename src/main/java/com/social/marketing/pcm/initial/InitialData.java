@@ -7,8 +7,6 @@ import com.social.marketing.pcm.service.CategoryService;
 import com.social.marketing.pcm.service.ProductService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.text.Normalizer;
@@ -16,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-@Component
+//@Component
 public class InitialData {
 
     @Resource
