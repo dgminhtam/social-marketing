@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -50,5 +52,13 @@ public class Product extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "product_gallery",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "media_id")
+    )
+    private List<Media> gallery = new ArrayList<>();
 
 }
