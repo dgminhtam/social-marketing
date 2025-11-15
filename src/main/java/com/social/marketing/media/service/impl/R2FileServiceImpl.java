@@ -95,7 +95,7 @@ public class R2FileServiceImpl implements FileService {
                 .urlOriginal(originalUrl)
                 .mimeType(originalMimeType)
                 .fileSizeInByte(file.getSize())
-                .altText(originalFilenameBase)
+                .name(originalFilenameBase)
                 .variants(variants)
                 .build();
     }

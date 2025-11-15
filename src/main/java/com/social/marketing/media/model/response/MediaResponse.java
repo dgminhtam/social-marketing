@@ -7,9 +7,11 @@ import lombok.Setter;
 @Setter
 public class MediaResponse {
     private long id;
+    private String name;
     private String altText;
     private String urlOriginal;
     private String urlLarge;
     private String urlMedium;
     private String urlThumbnail;
+    private Long size;
 }

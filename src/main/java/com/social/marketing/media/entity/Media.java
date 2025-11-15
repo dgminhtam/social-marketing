@@ -19,7 +19,10 @@ import java.util.Map;
 @FieldNameConstants
 public class Media extends AbstractEntity {
 
-    @Column(nullable = false)
+    @Column
+    private String name;
+
+    @Column
     private String altText;
 
     @Column

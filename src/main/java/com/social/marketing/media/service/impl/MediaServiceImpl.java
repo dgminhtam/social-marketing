@@ -9,10 +9,15 @@ import com.social.marketing.media.respository.MediaRepository;
 import com.social.marketing.media.service.FileService;
 import com.social.marketing.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -57,9 +62,10 @@ public class MediaServiceImpl implements MediaService {
         }
         MediaResponse mediaResponse = new MediaResponse();
         mediaResponse.setId(media.getId());
+        mediaResponse.setName(media.getName());
         mediaResponse.setAltText(media.getAltText());
         mediaResponse.setUrlOriginal(media.getUrlOriginal());
-
+        mediaResponse.setSize(media.getFileSizeInByte());
         Map<String, String> variants = media.getVariants();
         if (variants != null) {
             mediaResponse.setUrlLarge(variants.get("large"));
@@ -76,7 +82,8 @@ public class MediaServiceImpl implements MediaService {
         validateMultipartFile(file);
         UploadResult result = fileService.uploadAndCreateVariants(file);
         Media media = new Media();
-        media.setAltText(result.getAltText());
+        media.setName(result.getName());
+        media.setAltText(result.getName());
         media.setFileSizeInByte(result.getFileSizeInByte());
         media.setMimeType(result.getMimeType());
         media.setUrlOriginal(result.getUrlOriginal());
@@ -96,5 +103,12 @@ public class MediaServiceImpl implements MediaService {
         }
         Optional<Media> mediaOpt = mediaRepository.findById(id);
         return mediaOpt.orElse(null);
+    }
+
+    @Override
+    public Page<MediaResponse> getMedias(Specification<Media> specification, Pageable pageable) {
+        Page<Media> medias = mediaRepository.findAll(specification, pageable);
+        List<MediaResponse> clientProductResponse = medias.getContent().stream().map(this::convert).toList();
+        return new PageImpl<>(clientProductResponse, medias.getPageable(), medias.getTotalElements());
     }
 }
