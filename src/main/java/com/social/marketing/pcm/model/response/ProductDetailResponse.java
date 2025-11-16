@@ -14,17 +14,12 @@ import java.util.List;
 public class ProductDetailResponse {
     private Long id;
     private String sku;
+    private String slug;
     private String name;
     private String description;
     private BigDecimal originPrice;
     private BigDecimal price;
-    private Long maxOrderQuantity;
-    private Long minOrderQuantity;
     private MediaResponse image;
-    private List<ProductDetailResponse> variants;
-    private BigDecimal lowPrice;
-    private BigDecimal highPrice;
     private ProductStatus status;
-    private String externalId;
-    private CategoryResponse category;
+    private List<CategoryResponse> categories;
 }

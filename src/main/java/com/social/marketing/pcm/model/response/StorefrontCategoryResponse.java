@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ClientCategoryResponse {
+public class StorefrontCategoryResponse {
 
     private Long id;
 
@@ -15,5 +15,5 @@ public class ClientCategoryResponse {
 
     private String description;
 
-    private List<ClientCategoryResponse> children;
+    private List<StorefrontCategoryResponse> children;
 }

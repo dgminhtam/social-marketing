@@ -11,7 +11,6 @@ import com.social.marketing.pcm.model.response.CategoryResponse;
 import com.social.marketing.pcm.repository.CategoryRepository;
 import com.social.marketing.pcm.repository.ProductRepository;
 import com.social.marketing.pcm.service.CategoryService;
-import com.social.marketing.pcm.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,8 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -37,6 +35,11 @@ public class CategoryServiceImpl implements CategoryService {
             throw new NotFoundException("Category not found.");
         }
         return categoryOpt.get();
+    }
+
+    @Override
+    public List<Category> getCategoryByIds(List<Long> ids) {
+        return categoryRepository.findAllById(ids);
     }
 
     @Override
@@ -135,7 +138,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private boolean hasProduct(Category category) {
-        return productRepository.existsByCategory(category);
+        return productRepository.existsByCategories(Collections.singletonList(category));
     }
 
     @Override
@@ -147,6 +150,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryResponse.setDescription(category.getDescription());
         categoryResponse.setActive(category.isActive());
         categoryResponse.setImage(mediaService.convert(category.getImage()));
+        categoryResponse.setParentId(category.getParent() == null ? null : category.getParent().getId());
         List<Category> children = category.getChildren();
         categoryResponse.setChildren(children.stream().map(this::convert).toList());
         categoryResponse.setCreatedDate(category.getCreatedDate().format(DateTimeFormatter.ISO_DATE_TIME));

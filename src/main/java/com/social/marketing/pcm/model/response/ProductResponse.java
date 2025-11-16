@@ -7,20 +7,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
 public class ProductResponse {
     private Long id;
     private String sku;
+    private String slug;
     private String name;
     private String description;
     private BigDecimal originPrice;
     private BigDecimal price;
     private ProductStatus status;
-    private Long maxOrderQuantity;
-    private Long minOrderQuantity;
     private MediaResponse image;
-    private CategoryResponse category;
-    private String externalId;
+    private List<CategoryResponse> categories;
 }

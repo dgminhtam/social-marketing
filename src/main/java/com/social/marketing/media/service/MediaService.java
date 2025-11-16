@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface MediaService {
 
     void delete(Media media);
@@ -20,6 +22,8 @@ public interface MediaService {
     MediaResponse upload(MultipartFile file);
 
     Media get(Long id);
+
+    List<Media> getAllByIds(List<Long> ids);
 
     Page<MediaResponse> getMedias(Specification<Media> specification, Pageable pageable);
 }

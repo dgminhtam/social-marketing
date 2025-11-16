@@ -38,7 +38,5 @@ public interface ProductService {
 
     void convertUpdate(UpdateProductRequest source, Product target);
 
-    List<ProductResponse> getProductsByCategory(Category category);
-
     ProductDetailResponse createProduct(CreateProductRequest request);
 }

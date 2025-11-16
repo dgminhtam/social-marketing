@@ -1,7 +1,7 @@
 package com.social.marketing.pcm.controller;
 
 import com.social.marketing.pcm.entity.Category;
-import com.social.marketing.pcm.model.response.ClientCategoryResponse;
+import com.social.marketing.pcm.model.response.StorefrontCategoryResponse;
 import com.social.marketing.pcm.service.StorefrontCategoryService;
 import com.social.marketing.search.anotation.Search;
 import jakarta.annotation.Resource;
@@ -22,12 +22,12 @@ public class StorefrontCategoryController {
     private StorefrontCategoryService storefrontCategoryService;
 
     @GetMapping("/tree")
-    public List<ClientCategoryResponse> getCategories() {
+    public List<StorefrontCategoryResponse> getCategories() {
         return storefrontCategoryService.getCategoryTree();
     }
 
     @GetMapping
-    public Page<ClientCategoryResponse> getCategories(@Search Specification<Category> specification, Pageable pageable) {
+    public Page<StorefrontCategoryResponse> getCategories(@Search Specification<Category> specification, Pageable pageable) {
         return storefrontCategoryService.getCategories(specification, pageable);
     }
 }

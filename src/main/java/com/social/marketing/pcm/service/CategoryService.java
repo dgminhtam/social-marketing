@@ -16,6 +16,8 @@ public interface CategoryService {
 
     Category getCategoryById(Long id);
 
+    List<Category> getCategoryByIds(List<Long> ids);
+
     void saveAll(List<Category> categories);
 
     Page<CategoryResponse> getCategories(Specification<Category> specification, Pageable pageable);

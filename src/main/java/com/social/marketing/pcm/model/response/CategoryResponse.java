@@ -22,6 +22,8 @@ public class CategoryResponse {
 
     private MediaResponse image;
 
+    private Long parentId;
+
     private List<CategoryResponse> children;
 
     private String createdDate;

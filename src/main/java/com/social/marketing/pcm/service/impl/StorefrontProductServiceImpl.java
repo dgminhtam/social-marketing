@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -69,9 +70,9 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
         response.setName(product.getName());
-        Category category = product.getCategory();
-        if (Objects.nonNull(category)) {
-            response.setCategory(storefrontCategoryService.convert(category));
+        List<Category> categories = product.getCategories();
+        if (CollectionUtils.isEmpty(categories)) {
+            response.setCategories(categories.stream().map(storefrontCategoryService::convert).toList());
         }
         response.setImage(mediaService.convert(product.getImage()));
         return response;
@@ -91,9 +92,9 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(Objects.nonNull(product.getPrice()) ? product.getPrice() : BigDecimal.ZERO);
-        Category category = product.getCategory();
-        if (Objects.nonNull(category)) {
-            response.setCategory(storefrontCategoryService.convert(category));
+        List<Category> categories = product.getCategories();
+        if (CollectionUtils.isEmpty(categories)) {
+            response.setCategories(categories.stream().map(storefrontCategoryService::convert).toList());
         }
         response.setImage(mediaService.convert(product.getImage()));
         return response;

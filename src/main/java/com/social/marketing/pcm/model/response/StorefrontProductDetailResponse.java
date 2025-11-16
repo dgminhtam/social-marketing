@@ -16,11 +16,6 @@ public class StorefrontProductDetailResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private Long maxOrderQuantity;
-    private Long minOrderQuantity;
     private MediaResponse image;
-    private ClientCategoryResponse category;
-    private List<StorefrontProductDetailResponse> variants;
-    private BigDecimal lowPrice;
-    private BigDecimal highPrice;
+    private List<StorefrontCategoryResponse> categories;
 }

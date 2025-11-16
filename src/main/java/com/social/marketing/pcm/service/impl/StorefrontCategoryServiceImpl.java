@@ -1,7 +1,7 @@
 package com.social.marketing.pcm.service.impl;
 
 import com.social.marketing.pcm.entity.Category;
-import com.social.marketing.pcm.model.response.ClientCategoryResponse;
+import com.social.marketing.pcm.model.response.StorefrontCategoryResponse;
 import com.social.marketing.pcm.repository.CategoryRepository;
 import com.social.marketing.pcm.service.StorefrontCategoryService;
 import jakarta.annotation.Resource;
@@ -33,10 +33,10 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
     }
 
     @Override
-    public Page<ClientCategoryResponse> getCategories(Specification<Category> specification, Pageable pageable) {
+    public Page<StorefrontCategoryResponse> getCategories(Specification<Category> specification, Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(specification, pageable);
-        List<ClientCategoryResponse> clientCategoryResponses = categories.getContent().stream().map(this::convert).toList();
-        return new PageImpl<>(clientCategoryResponses, categories.getPageable(), categories.getTotalElements());
+        List<StorefrontCategoryResponse> storefrontCategoryRespons = categories.getContent().stream().map(this::convert).toList();
+        return new PageImpl<>(storefrontCategoryRespons, categories.getPageable(), categories.getTotalElements());
     }
 
     @Override
@@ -45,19 +45,19 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
     }
 
     @Override
-    public List<ClientCategoryResponse> getCategoryTree() {
+    public List<StorefrontCategoryResponse> getCategoryTree() {
         List<Category> categories = categoryRepository.findAll();
         return categories.stream().map(this::convert).toList();
     }
 
     @Override
-    public ClientCategoryResponse convert(Category category) {
-        ClientCategoryResponse clientCategoryResponse = new ClientCategoryResponse();
-        clientCategoryResponse.setId(category.getId());
-        clientCategoryResponse.setName(category.getName());
-        clientCategoryResponse.setDescription(category.getDescription());
+    public StorefrontCategoryResponse convert(Category category) {
+        StorefrontCategoryResponse storefrontCategoryResponse = new StorefrontCategoryResponse();
+        storefrontCategoryResponse.setId(category.getId());
+        storefrontCategoryResponse.setName(category.getName());
+        storefrontCategoryResponse.setDescription(category.getDescription());
         List<Category> children = category.getChildren();
-        clientCategoryResponse.setChildren(children.stream().map(this::convert).toList());
-        return clientCategoryResponse;
+        storefrontCategoryResponse.setChildren(children.stream().map(this::convert).toList());
+        return storefrontCategoryResponse;
     }
 }

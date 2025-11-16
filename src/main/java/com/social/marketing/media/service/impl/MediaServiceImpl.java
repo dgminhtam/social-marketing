@@ -9,6 +9,7 @@ import com.social.marketing.media.respository.MediaRepository;
 import com.social.marketing.media.service.FileService;
 import com.social.marketing.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -103,6 +104,14 @@ public class MediaServiceImpl implements MediaService {
         }
         Optional<Media> mediaOpt = mediaRepository.findById(id);
         return mediaOpt.orElse(null);
+    }
+
+    @Override
+    public List<Media> getAllByIds(List<Long> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return null;
+        }
+        return mediaRepository.findAllById(ids);
     }
 
     @Override

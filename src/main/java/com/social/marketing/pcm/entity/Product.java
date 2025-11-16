@@ -49,9 +49,13 @@ public class Product extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private ProductStatus status = ProductStatus.DRAFT;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "product_categories",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(
