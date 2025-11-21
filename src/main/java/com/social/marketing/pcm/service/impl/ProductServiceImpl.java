@@ -83,16 +83,20 @@ public class ProductServiceImpl implements ProductService {
         response.setId(product.getId());
         response.setSku(product.getSku());
         response.setSlug(product.getSlug());
-        response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setOriginPrice(product.getOriginPrice());
         response.setPrice(product.getPrice());
+        response.setName(product.getName());
         response.setImage(mediaService.convert(product.getImage()));
+        response.setStatus(product.getStatus());
         List<Category> categories = product.getCategories();
-        if (CollectionUtils.isEmpty(categories)) {
+        if (CollectionUtils.isNotEmpty(categories)) {
             response.setCategories(categories.stream().map(categoryService::convert).toList());
         }
-        response.setStatus(product.getStatus());
+        List<Media> gallery = product.getGallery();
+        if (CollectionUtils.isNotEmpty(gallery)) {
+            response.setGallery(gallery.stream().map(mediaService::convert).toList());
+        }
         return response;
     }
 

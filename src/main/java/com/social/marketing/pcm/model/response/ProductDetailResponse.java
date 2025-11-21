@@ -11,15 +11,5 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProductDetailResponse {
-    private Long id;
-    private String sku;
-    private String slug;
-    private String name;
-    private String description;
-    private BigDecimal originPrice;
-    private BigDecimal price;
-    private MediaResponse image;
-    private ProductStatus status;
-    private List<CategoryResponse> categories;
+public class ProductDetailResponse extends  ProductResponse {
 }
