@@ -103,7 +103,24 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDetailResponse updateProduct(Long id, UpdateProductRequest request) {
         Product product = getProductById(id);
-        convertUpdate(request, product);
+        product.setName(request.name());
+        product.setSku(request.sku());
+        product.setSlug(request.slug());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setOriginPrice(request.originPrice());
+        product.setDescription(request.description());
+        List<Category> categories = categoryService.getCategoryByIds(request.categoryIds());
+        product.setCategories(categories);
+        product.setStatus(request.status());
+        if (request.imageId() != null) {
+            Media image = mediaService.get(request.imageId());
+            product.setImage(image);
+        }
+        if (CollectionUtils.isNotEmpty(request.gallery())) {
+            List<Media> gallery = mediaService.getAllByIds(request.gallery());
+            product.setGallery(gallery);
+        }
         productRepository.save(product);
         return convertDetail(product);
     }
