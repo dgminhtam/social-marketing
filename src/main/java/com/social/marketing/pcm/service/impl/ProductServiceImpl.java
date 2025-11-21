@@ -52,8 +52,12 @@ public class ProductServiceImpl implements ProductService {
         response.setImage(mediaService.convert(product.getImage()));
         response.setStatus(product.getStatus());
         List<Category> categories = product.getCategories();
-        if (CollectionUtils.isEmpty(categories)) {
+        if (CollectionUtils.isNotEmpty(categories)) {
             response.setCategories(categories.stream().map(categoryService::convert).toList());
+        }
+        List<Media> gallery = product.getGallery();
+        if (CollectionUtils.isNotEmpty(gallery)) {
+            response.setGallery(gallery.stream().map(mediaService::convert).toList());
         }
         return response;
     }
@@ -146,6 +150,9 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.name());
         product.setSku(request.sku());
         product.setSlug(request.slug());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setOriginPrice(request.originPrice());
         product.setDescription(request.description());
         List<Category> categories = categoryService.getCategoryByIds(request.categoryIds());
         product.setCategories(categories);

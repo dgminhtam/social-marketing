@@ -1,3 +1,5 @@
+server:
+  port: 8484
 spring:
   datasource:
     url: jdbc:postgresql://ep-lively-meadow-a1kdv5gu-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require

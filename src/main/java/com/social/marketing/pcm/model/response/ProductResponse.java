@@ -1,6 +1,7 @@
 package com.social.marketing.pcm.model.response;
 
 
+import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.model.response.MediaResponse;
 import com.social.marketing.pcm.entity.ProductStatus;
 import lombok.Getter;
@@ -22,4 +23,5 @@ public class ProductResponse {
     private ProductStatus status;
     private MediaResponse image;
     private List<CategoryResponse> categories;
+    private List<MediaResponse> gallery;
 }
