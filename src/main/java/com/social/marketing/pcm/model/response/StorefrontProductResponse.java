@@ -2,6 +2,7 @@ package com.social.marketing.pcm.model.response;
 
 
 import com.social.marketing.media.model.response.MediaResponse;
+import com.social.marketing.pcm.entity.ProductStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,8 +17,10 @@ public class StorefrontProductResponse {
     private String slug;
     private String name;
     private String description;
+    private BigDecimal originPrice;
     private BigDecimal price;
-    private String mainImage;
-    private List<StorefrontCategoryResponse> categories;
+    private ProductStatus status;
     private MediaResponse image;
+    private List<StorefrontCategoryResponse> categories;
+    private List<MediaResponse> gallery;
 }

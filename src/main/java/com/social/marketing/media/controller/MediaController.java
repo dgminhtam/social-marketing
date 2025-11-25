@@ -29,4 +29,14 @@ public class MediaController {
     public Page<MediaResponse> getMedias(@Search Specification<Media> specification, Pageable pageable) {
         return mediaService.getMedias(specification, pageable);
     }
+
+    @GetMapping("/{id}")
+    public MediaResponse getMedia(@PathVariable Long id) {
+        return mediaService.getMedia(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteMedia(@PathVariable Long id) {
+        mediaService.deleteMedia(id);
+    }
 }

@@ -23,7 +23,7 @@ public class StorefrontProductController {
 
     @GetMapping
     public Page<StorefrontProductResponse> getProducts(@Search Specification<Product> specification, Pageable pageable) {
-        return storefrontProductService.getBaseProducts(specification, pageable);
+        return storefrontProductService.getProducts(specification, pageable);
     }
 
     @GetMapping("/{sku}")

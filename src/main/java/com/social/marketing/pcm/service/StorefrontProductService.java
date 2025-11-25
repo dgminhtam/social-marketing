@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 public interface StorefrontProductService {
 
-    Page<StorefrontProductResponse> getBaseProducts(Specification<Product> specification, Pageable pageable);
+    Page<StorefrontProductResponse> getProducts(Specification<Product> specification, Pageable pageable);
 
     Product get(Long id);
 

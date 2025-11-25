@@ -1,6 +1,8 @@
 package com.social.marketing.pcm.service.impl;
 
+import com.social.marketing.media.service.MediaService;
 import com.social.marketing.pcm.entity.Category;
+import com.social.marketing.pcm.model.response.CategoryResponse;
 import com.social.marketing.pcm.model.response.StorefrontCategoryResponse;
 import com.social.marketing.pcm.repository.CategoryRepository;
 import com.social.marketing.pcm.service.StorefrontCategoryService;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +22,9 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
 
     @Resource
     private CategoryRepository categoryRepository;
+
+    @Resource
+    private MediaService mediaService;
 
     @Override
     public void saveAll(List<Category> categories) {
@@ -46,18 +52,26 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
 
     @Override
     public List<StorefrontCategoryResponse> getCategoryTree() {
-        List<Category> categories = categoryRepository.findAll();
+        Specification<Category> specification = (root, query, criteriaBuilder)
+                -> criteriaBuilder.isNull(root.get(Category.Fields.parent));
+        List<Category> categories = categoryRepository.findAll(specification);
         return categories.stream().map(this::convert).toList();
     }
 
     @Override
     public StorefrontCategoryResponse convert(Category category) {
-        StorefrontCategoryResponse storefrontCategoryResponse = new StorefrontCategoryResponse();
-        storefrontCategoryResponse.setId(category.getId());
-        storefrontCategoryResponse.setName(category.getName());
-        storefrontCategoryResponse.setDescription(category.getDescription());
+        StorefrontCategoryResponse categoryResponse = new StorefrontCategoryResponse();
+        categoryResponse.setId(category.getId());
+        categoryResponse.setName(category.getName());
+        categoryResponse.setSlug(category.getSlug());
+        categoryResponse.setDescription(category.getDescription());
+        categoryResponse.setActive(category.isActive());
+        categoryResponse.setImage(mediaService.convert(category.getImage()));
+        categoryResponse.setParentId(category.getParent() == null ? null : category.getParent().getId());
         List<Category> children = category.getChildren();
-        storefrontCategoryResponse.setChildren(children.stream().map(this::convert).toList());
-        return storefrontCategoryResponse;
+        categoryResponse.setChildren(children.stream().map(this::convert).toList());
+        categoryResponse.setCreatedDate(category.getCreatedDate().format(DateTimeFormatter.ISO_DATE_TIME));
+        categoryResponse.setLastModifiedDate(category.getLastModifiedDate().format(DateTimeFormatter.ISO_DATE_TIME));
+        return categoryResponse;
     }
 }

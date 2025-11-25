@@ -4,38 +4,39 @@ import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.media.configuration.MediaProperties;
 import com.social.marketing.media.model.request.UploadResult;
 import com.social.marketing.media.service.FileService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+@Slf4j
+@Service
 @RequiredArgsConstructor
 public class R2FileServiceImpl implements FileService {
 
     private final Tika tika;
     private final MediaProperties properties;
+    private final S3Client s3Client;
 
-    // 3. Lấy thông tin bucket từ application.yml
     @Value("${application.cloudflare.r2.bucket-name}")
     private String bucketName;
 
     @Value("${application.cloudflare.r2.public-url}")
-    private String publicBucketUrl; // URL công khai của R2 (https://pub-...)
+    private String publicBucketUrl;
 
-    private final S3Client s3Client;
-
+    // Constants config
     private static final int LARGE_SIZE = 1000;
     private static final int MEDIUM_SIZE = 300;
     private static final int THUMBNAIL_SIZE = 150;
@@ -44,7 +45,6 @@ public class R2FileServiceImpl implements FileService {
     private static final String WEBP_MIME_TYPE = "image/webp";
 
     @Override
-    @Transactional
     public UploadResult uploadAndCreateVariants(MultipartFile file) {
         if (file.isEmpty()) {
             throw new NotFoundException("File is empty!");
@@ -58,37 +58,50 @@ public class R2FileServiceImpl implements FileService {
             fileBytes = file.getBytes();
             originalMimeType = tika.detect(fileBytes);
         } catch (IOException e) {
-            throw new RuntimeException("Could not read file", e);
+            throw new RuntimeException("Could not read file content", e);
         }
 
         validateMimeTypeAndSize(file.getSize(), originalMimeType);
 
+        // Tạo UUID chung cho cả nhóm ảnh (gốc + biến thể) để dễ quản lý
+        String uniqueId = UUID.randomUUID().toString();
         String originalExtension = getExtensionFromMimeType(originalMimeType);
-        String originalObjectKey = "originals/" + originalFilenameBase + "-" + UUID.randomUUID() + "." + originalExtension;
-        String originalUrl = uploadToR2(fileBytes, originalObjectKey, originalMimeType);
 
+        // Danh sách theo dõi các Key đã upload để Rollback nếu lỗi
+        List<String> uploadedKeys = new ArrayList<>();
         Map<String, String> variants = new HashMap<>();
+        String originalUrl = null;
 
         try {
-            byte[] largeBytes = resizeImageToWebp(fileBytes, LARGE_SIZE, LARGE_SIZE);
-            String largeKey = "variants/large-" + originalFilenameBase + ".webp";
-            String largeUrl = uploadToR2(largeBytes, largeKey, WEBP_MIME_TYPE);
+            // 1. Upload Original Image
+            // Format: originals/{uuid}-{filename}.{ext}
+            String originalKey = String.format("originals/%s-%s.%s", uniqueId, originalFilenameBase, originalExtension);
+            originalUrl = uploadToR2(fileBytes, originalKey, originalMimeType);
+            uploadedKeys.add(originalKey);
+
+            // 2. Resize & Upload Variants
+            // Large
+            String largeKey = String.format("variants/large-%s-%s.%s", uniqueId, originalFilenameBase, WEBP_FORMAT);
+            String largeUrl = resizeAndUpload(fileBytes, LARGE_SIZE, largeKey);
             variants.put("large", largeUrl);
+            uploadedKeys.add(largeKey);
 
-            // Medium (WebP)
-            byte[] mediumBytes = resizeImageToWebp(fileBytes, MEDIUM_SIZE, MEDIUM_SIZE);
-            String mediumKey = "variants/medium-" + originalFilenameBase + ".webp";
-            String mediumUrl = uploadToR2(mediumBytes, mediumKey, WEBP_MIME_TYPE);
+            // Medium
+            String mediumKey = String.format("variants/medium-%s-%s.%s", uniqueId, originalFilenameBase, WEBP_FORMAT);
+            String mediumUrl = resizeAndUpload(fileBytes, MEDIUM_SIZE, mediumKey);
             variants.put("medium", mediumUrl);
+            uploadedKeys.add(mediumKey);
 
-            // Thumbnail (WebP)
-            byte[] thumbBytes = resizeImageToWebp(fileBytes, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
-            String thumbKey = "variants/thumb-" + originalFilenameBase + ".webp";
-            String thumbUrl = uploadToR2(thumbBytes, thumbKey, WEBP_MIME_TYPE);
+            // Thumbnail
+            String thumbKey = String.format("variants/thumb-%s-%s.%s", uniqueId, originalFilenameBase, WEBP_FORMAT);
+            String thumbUrl = resizeAndUpload(fileBytes, THUMBNAIL_SIZE, thumbKey);
             variants.put("thumbnail", thumbUrl);
+            uploadedKeys.add(thumbKey);
 
-        } catch (IOException e) {
-            throw new RuntimeException("Could not resize and upload variants to WebP", e);
+        } catch (Exception e) {
+            log.error("Error during upload process. Rolling back uploaded files...", e);
+            rollbackUploadedFiles(uploadedKeys); // Xóa các file đã lỡ upload
+            throw new RuntimeException("Upload failed and rolled back", e);
         }
 
         return UploadResult.builder()
@@ -100,26 +113,62 @@ public class R2FileServiceImpl implements FileService {
                 .build();
     }
 
-    @Override
-    public void deleteFileByUrl(String fileUrl) {
-
+    /**
+     * Helper method: Resize và Upload gộp lại để code gọn hơn
+     */
+    private String resizeAndUpload(byte[] originalBytes, int size, String key) throws IOException {
+        byte[] resizedBytes = resizeImageToWebp(originalBytes, size, size);
+        return uploadToR2(resizedBytes, key, WEBP_MIME_TYPE);
     }
 
-    /**
-     * 4. Hàm private mới: uploadToR2 (thay thế saveFileToLocal)
-     */
     private String uploadToR2(byte[] fileBytes, String objectKey, String mimeType) {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(objectKey) // Tên file (đường dẫn) trên R2
+                .key(objectKey)
                 .contentType(mimeType)
                 .build();
 
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileBytes));
-
-        // 5. Trả về URL công khai (Public URL)
-        // Rất quan trọng: R2 dùng URL public khác với endpoint API
         return publicBucketUrl + "/" + objectKey;
+    }
+
+    /**
+     * Xóa file trên R2 dựa vào URL đầy đủ
+     */
+    @Override
+    public void deleteFileByUrl(String fileUrl) {
+        if (fileUrl == null || !fileUrl.startsWith(publicBucketUrl)) {
+            log.warn("Invalid file URL for deletion: {}", fileUrl);
+            return;
+        }
+
+        // Trích xuất Object Key từ URL:
+        // URL: https://pub-xxx/variants/abc.webp -> Key: variants/abc.webp
+        String objectKey = fileUrl.replace(publicBucketUrl + "/", "");
+        deleteFileByKey(objectKey);
+    }
+
+    private void deleteFileByKey(String objectKey) {
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .build();
+            s3Client.deleteObject(deleteRequest);
+            log.info("Deleted file from R2: {}", objectKey);
+        } catch (Exception e) {
+            log.error("Failed to delete file from R2: {}", objectKey, e);
+            // Không throw exception để tránh làm gián đoạn luồng chính (ví dụ luồng xóa bài viết)
+        }
+    }
+
+    /**
+     * Cơ chế Compensation (Bù trừ): Xóa các file đã upload nếu quy trình lỗi
+     */
+    private void rollbackUploadedFiles(List<String> keys) {
+        for (String key : keys) {
+            deleteFileByKey(key);
+        }
     }
 
     private byte[] resizeImageToWebp(byte[] originalImage, int width, int height) throws IOException {
@@ -137,36 +186,27 @@ public class R2FileServiceImpl implements FileService {
         }
     }
 
-    @Override
-    public String uploadFile(byte[] file, String path) {
-        throw new UnsupportedOperationException("Deprecated. Use uploadAndCreateVariants instead.");
-    }
+    // --- Utility Methods ---
 
-    @Override
-    public void deleteFile(String fileName, String path) {
-    }
-
-    @Override
-    public String detachMimeType(byte[] file) {
-        return tika.detect(file);
+    private String getFilenameBase(String filename) {
+        if (filename == null) return "image";
+        int dotIndex = filename.lastIndexOf('.');
+        // Normalize filename: remove special chars to avoid URL issues
+        String baseName = (dotIndex == -1) ? filename : filename.substring(0, dotIndex);
+        return baseName.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 
     @Override
     public String getExtensionFromMimeType(String mimeType) {
+        // Mở rộng hỗ trợ nhiều loại hơn nếu cần
         return switch (mimeType) {
             case "image/jpeg" -> "jpg";
             case "image/png" -> "png";
             case "image/gif" -> "gif";
+            case "image/webp" -> "webp";
+            case "image/bmp" -> "bmp";
             default -> "bin";
         };
-    }
-
-    private String getFilenameBase(String filename) {
-        if (filename == null) {
-            return "image";
-        }
-        int dotIndex = filename.lastIndexOf('.');
-        return (dotIndex == -1) ? filename : filename.substring(0, dotIndex);
     }
 
     private void validateMimeTypeAndSize(long size, String mimeType) {
@@ -176,5 +216,22 @@ public class R2FileServiceImpl implements FileService {
         if (!properties.getAcceptMimeTypes().contains(mimeType)) {
             throw new IllegalArgumentException("File type not allowed: " + mimeType);
         }
+    }
+
+    // --- Deprecated Methods ---
+
+    @Override
+    public String uploadFile(byte[] file, String path) {
+        throw new UnsupportedOperationException("Deprecated. Use uploadAndCreateVariants instead.");
+    }
+
+    @Override
+    public void deleteFile(String fileName, String path) {
+        // Forward to new delete logic if needed, or leave empty as deprecated
+    }
+
+    @Override
+    public String detachMimeType(byte[] file) {
+        return tika.detect(file);
     }
 }

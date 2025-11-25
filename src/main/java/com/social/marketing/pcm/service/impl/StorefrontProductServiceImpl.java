@@ -1,6 +1,7 @@
 package com.social.marketing.pcm.service.impl;
 
 import com.social.marketing.exception.NotFoundException;
+import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.service.MediaService;
 import com.social.marketing.pcm.entity.Category;
 import com.social.marketing.pcm.entity.Product;
@@ -11,12 +12,12 @@ import com.social.marketing.pcm.repository.ProductRepository;
 import com.social.marketing.pcm.service.StorefrontCategoryService;
 import com.social.marketing.pcm.service.StorefrontProductService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,12 +37,12 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
     private StorefrontCategoryService storefrontCategoryService;
 
     @Override
-    public Page<StorefrontProductResponse> getBaseProducts(Specification<Product> specification, Pageable pageable) {
+    public Page<StorefrontProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {
         Specification<Product> spec =
                 (root, query, builder) -> builder.equal(root.get(Product.Fields.status), ProductStatus.PUBLISHED);
         Page<Product> products = productRepository.findAll(Objects.nonNull(specification) ? spec.and(specification) : spec, pageable);
-        List<StorefrontProductResponse> storefrontProductRespons = products.getContent().stream().map(this::convert).toList();
-        return new PageImpl<>(storefrontProductRespons, products.getPageable(), products.getTotalElements());
+        List<StorefrontProductResponse> storefrontProductResponse = products.getContent().stream().map(this::convert).toList();
+        return new PageImpl<>(storefrontProductResponse, products.getPageable(), products.getTotalElements());
     }
 
     @Override
@@ -67,14 +68,21 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
         StorefrontProductResponse response = new StorefrontProductResponse();
         response.setId(product.getId());
         response.setSku(product.getSku());
+        response.setSlug(product.getSlug());
         response.setDescription(product.getDescription());
+        response.setOriginPrice(product.getOriginPrice());
         response.setPrice(product.getPrice());
         response.setName(product.getName());
+        response.setImage(mediaService.convert(product.getImage()));
+        response.setStatus(product.getStatus());
         List<Category> categories = product.getCategories();
-        if (CollectionUtils.isEmpty(categories)) {
+        if (CollectionUtils.isNotEmpty(categories)) {
             response.setCategories(categories.stream().map(storefrontCategoryService::convert).toList());
         }
-        response.setImage(mediaService.convert(product.getImage()));
+        List<Media> gallery = product.getGallery();
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(gallery)) {
+            response.setGallery(gallery.stream().map(mediaService::convert).toList());
+        }
         return response;
     }
 

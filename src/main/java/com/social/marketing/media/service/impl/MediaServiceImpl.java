@@ -9,6 +9,7 @@ import com.social.marketing.media.respository.MediaRepository;
 import com.social.marketing.media.service.FileService;
 import com.social.marketing.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j // Thêm logger để track việc xóa
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
 
@@ -33,7 +35,33 @@ public class MediaServiceImpl implements MediaService {
     @Transactional
     @Override
     public void delete(Media media) {
-        //TODO
+        if (media == null) {
+            log.warn("Attempted to delete null media");
+            return;
+        }
+
+        // 1. Xóa file gốc (Original) trên R2/S3
+        if (media.getUrlOriginal() != null) {
+            fileService.deleteFileByUrl(media.getUrlOriginal());
+        }
+
+        // 2. Xóa tất cả các biến thể (Variants: large, medium, thumbnail) trên R2/S3
+        Map<String, String> variants = media.getVariants();
+        if (variants != null && !variants.isEmpty()) {
+            // Duyệt qua tất cả các value (URL) trong map và xóa
+            for (String variantUrl : variants.values()) {
+                if (variantUrl != null) {
+                    fileService.deleteFileByUrl(variantUrl);
+                }
+            }
+        }
+
+        // 3. Xóa record trong Database
+        // Lưu ý: Nếu bước này lỗi (VD: dính Foreign Key), @Transactional sẽ rollback DB,
+        // nhưng các file trên S3 đã bị xóa ở bước 1 & 2 (chấp nhận rủi ro file bị mất nhưng DB còn).
+        mediaRepository.delete(media);
+
+        log.info("Deleted media entity ID: {} and its associated files", media.getId());
     }
 
     @Override
@@ -49,7 +77,7 @@ public class MediaServiceImpl implements MediaService {
         try {
             mimeType = fileService.detachMimeType(file.getBytes());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not detect mime type", e);
         }
         if (!properties.getAcceptMimeTypes().contains(mimeType)) {
             throw new IllegalArgumentException("File type not allowed: " + mimeType);
@@ -67,6 +95,7 @@ public class MediaServiceImpl implements MediaService {
         mediaResponse.setAltText(media.getAltText());
         mediaResponse.setUrlOriginal(media.getUrlOriginal());
         mediaResponse.setSize(media.getFileSizeInByte());
+
         Map<String, String> variants = media.getVariants();
         if (variants != null) {
             mediaResponse.setUrlLarge(variants.get("large"));
@@ -77,11 +106,12 @@ public class MediaServiceImpl implements MediaService {
         return mediaResponse;
     }
 
-    @Transactional
     @Override
     public Media create(MultipartFile file) {
         validateMultipartFile(file);
+
         UploadResult result = fileService.uploadAndCreateVariants(file);
+
         Media media = new Media();
         media.setName(result.getName());
         media.setAltText(result.getName());
@@ -89,10 +119,12 @@ public class MediaServiceImpl implements MediaService {
         media.setMimeType(result.getMimeType());
         media.setUrlOriginal(result.getUrlOriginal());
         media.setVariants(result.getVariants());
+
         return mediaRepository.save(media);
     }
 
     @Override
+    @Transactional
     public MediaResponse upload(MultipartFile file) {
         return convert(create(file));
     }
@@ -102,8 +134,7 @@ public class MediaServiceImpl implements MediaService {
         if (id == null) {
             return null;
         }
-        Optional<Media> mediaOpt = mediaRepository.findById(id);
-        return mediaOpt.orElse(null);
+        return mediaRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -119,5 +150,16 @@ public class MediaServiceImpl implements MediaService {
         Page<Media> medias = mediaRepository.findAll(specification, pageable);
         List<MediaResponse> clientProductResponse = medias.getContent().stream().map(this::convert).toList();
         return new PageImpl<>(clientProductResponse, medias.getPageable(), medias.getTotalElements());
+    }
+
+    @Override
+    public MediaResponse getMedia(Long id) {
+        return convert(get(id));
+    }
+
+    @Override
+    public void deleteMedia(Long id) {
+        Media media = get(id);
+        delete(media);
     }
 }

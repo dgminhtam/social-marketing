@@ -26,4 +26,8 @@ public interface MediaService {
     List<Media> getAllByIds(List<Long> ids);
 
     Page<MediaResponse> getMedias(Specification<Media> specification, Pageable pageable);
+
+    MediaResponse getMedia(Long id);
+
+    void deleteMedia(Long id);
 }
