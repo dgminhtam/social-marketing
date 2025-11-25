@@ -5,6 +5,7 @@ import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.service.MediaService;
 import com.social.marketing.pcm.entity.Category;
 import com.social.marketing.pcm.entity.Product;
+import com.social.marketing.pcm.entity.ProductStatus;
 import com.social.marketing.pcm.model.request.ChangeStatusRequest;
 import com.social.marketing.pcm.model.request.CreateProductRequest;
 import com.social.marketing.pcm.model.request.UpdateProductRequest;
@@ -168,26 +169,38 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDetailResponse createProduct(CreateProductRequest request) {
         Product product = new Product();
         product.setName(request.name());
         product.setSku(request.sku());
         product.setSlug(request.slug());
         product.setDescription(request.description());
+
+        if (request.status() != null) {
+            product.setStatus(request.status());
+        } else {
+            product.setStatus(ProductStatus.DRAFT);
+        }
+
         product.setPrice(request.price());
         product.setOriginPrice(request.originPrice());
-        product.setDescription(request.description());
-        List<Category> categories = categoryService.getCategoryByIds(request.categoryIds());
-        product.setCategories(categories);
-        product.setStatus(request.status());
+
+        if (CollectionUtils.isNotEmpty(request.categoryIds())) {
+            List<Category> categories = categoryService.getCategoryByIds(request.categoryIds());
+            product.setCategories(categories);
+        }
+
         if (request.imageId() != null) {
             Media image = mediaService.get(request.imageId());
             product.setImage(image);
         }
+
         if (CollectionUtils.isNotEmpty(request.gallery())) {
             List<Media> gallery = mediaService.getAllByIds(request.gallery());
             product.setGallery(gallery);
         }
+
         productRepository.save(product);
         return convertDetail(product);
     }
