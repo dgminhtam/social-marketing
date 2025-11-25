@@ -30,4 +30,9 @@ public class StorefrontCategoryController {
     public Page<StorefrontCategoryResponse> getCategories(@Search Specification<Category> specification, Pageable pageable) {
         return storefrontCategoryService.getCategories(specification, pageable);
     }
+
+    @GetMapping("/root")
+    public List<StorefrontCategoryResponse> getRootCategories() {
+        return storefrontCategoryService.getRootCategories();
+    }
 }

@@ -22,5 +22,8 @@ public interface StorefrontCategoryService {
     List<StorefrontCategoryResponse> getCategoryTree();
 
     StorefrontCategoryResponse convert(Category category);
+
+    List<StorefrontCategoryResponse> getRootCategories();
+
 }
 

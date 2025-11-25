@@ -80,7 +80,7 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
             response.setCategories(categories.stream().map(storefrontCategoryService::convert).toList());
         }
         List<Media> gallery = product.getGallery();
-        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(gallery)) {
+        if (CollectionUtils.isNotEmpty(gallery)) {
             response.setGallery(gallery.stream().map(mediaService::convert).toList());
         }
         return response;

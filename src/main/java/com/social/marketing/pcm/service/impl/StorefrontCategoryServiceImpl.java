@@ -74,4 +74,12 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
         categoryResponse.setLastModifiedDate(category.getLastModifiedDate().format(DateTimeFormatter.ISO_DATE_TIME));
         return categoryResponse;
     }
+
+    @Override
+    public List<StorefrontCategoryResponse> getRootCategories() {
+        Specification<Category> specification = (root, query, criteriaBuilder)
+                -> criteriaBuilder.isNull(root.get(Category.Fields.parent));
+        List<Category> categories = categoryRepository.findAll(specification);
+        return categories.stream().map(this::convert).toList();
+    }
 }
