@@ -42,6 +42,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/storefront/**").permitAll()
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("/api/webhooks/**").permitAll()
                         .anyRequest().hasAuthority("ROLE_admin")
                 );
 

@@ -30,4 +30,6 @@ public interface MediaService {
     MediaResponse getMedia(Long id);
 
     void deleteMedia(Long id);
+
+    Media save(Media media);
 }

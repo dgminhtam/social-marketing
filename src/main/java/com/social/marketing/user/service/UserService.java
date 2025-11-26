@@ -7,4 +7,6 @@ public interface UserService {
     User getUserByEmail(String email);
 
     void save(User user);
+
+    void syncUser(String clerkId, String email, String firstName, String lastName, String imageUrl);
 }

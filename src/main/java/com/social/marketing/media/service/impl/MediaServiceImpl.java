@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j // Thêm logger để track việc xóa
 @RequiredArgsConstructor
@@ -161,5 +160,10 @@ public class MediaServiceImpl implements MediaService {
     public void deleteMedia(Long id) {
         Media media = get(id);
         delete(media);
+    }
+
+    @Override
+    public Media save(Media media) {
+        return mediaRepository.save(media);
     }
 }

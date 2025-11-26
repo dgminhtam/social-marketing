@@ -1,6 +1,7 @@
 package com.social.marketing.user.entity;
 
 import com.social.marketing.entity.AbstractEntity;
+import com.social.marketing.media.entity.Media;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,9 +21,8 @@ public class User extends AbstractEntity {
     @Column
     private String lastName;
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Media image;
 
     @Column(unique = true, nullable = false)
     private String externalId;
