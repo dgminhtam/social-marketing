@@ -8,3 +8,7 @@ file:
     - image/jpeg
     - image/png
     - image/webp
+
+clerk:
+  webhook:
+    secret: ${CLERK_WEBHOOK_SECRET}
