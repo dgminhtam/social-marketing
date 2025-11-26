@@ -104,10 +104,12 @@ public class CartService {
         }
         // Build order request for OrderService
         List<com.social.marketing.order.model.request.OrderEntryRequest> entries = cart.getEntries().stream()
-                .map(e -> new com.social.marketing.order.model.request.OrderEntryRequest(e.getProduct().getSku(), e.getQuantity(), e.getDescription()))
+                .map(e -> new com.social.marketing.order.model.request.OrderEntryRequest(e.getProduct().getSku(),
+                        e.getQuantity(), e.getDescription()))
                 .collect(Collectors.toList());
         // delegate to orderService to place order
-        orderService.placeOrder(new com.social.marketing.order.model.request.PlaceOrderRequest(link, cart.getEmail() == null ? "" : cart.getEmail(), entries, cart.getDescription()));
+        orderService.placeOrder(new com.social.marketing.order.model.request.PlaceOrderRequest(link,
+                cart.getEmail() == null ? "" : cart.getEmail(), entries, cart.getDescription()));
         // mark cart as checked out by emptying entries
         cart.getEntries().clear();
         cart.setSubTotal(BigDecimal.ZERO);
@@ -126,8 +128,150 @@ public class CartService {
         resp.setEmail(cart.getEmail());
         resp.setLink(cart.getDescription());
         resp.setSubTotal(cart.getSubTotal());
+        resp.setGrandTotal(cart.getGrandTotal());
         resp.setCreateDate(cart.getCreatedDate());
         resp.setLastModifiedDate(cart.getLastModifiedDate());
+        resp.setTotalItems(cart.getEntries().size());
+        resp.setEntries(cart.getEntries().stream()
+                .map(this::convertEntryToResponse)
+                .collect(Collectors.toList()));
         return resp;
+    }
+
+    private com.social.marketing.cart.model.response.CartEntryResponse convertEntryToResponse(
+            com.social.marketing.cart.entity.CartEntry entry) {
+        com.social.marketing.cart.model.response.CartEntryResponse resp = new com.social.marketing.cart.model.response.CartEntryResponse();
+        resp.setId(entry.getId());
+        resp.setSku(entry.getProduct() != null ? entry.getProduct().getSku() : null);
+        resp.setName(entry.getName());
+        resp.setDescription(entry.getDescription());
+        resp.setPrice(entry.getPrice());
+        resp.setQuantity(entry.getQuantity());
+        resp.setSubTotal(entry.getSubTotal());
+        if (entry.getProduct() != null && entry.getProduct().getImage() != null) {
+            resp.setImageUrl(entry.getProduct().getImage().getUrlOriginal());
+        }
+        return resp;
+    }
+
+    // ============ CRUD Operations ============
+
+    public org.springframework.data.domain.Page<CartResponse> getAllCarts(
+            org.springframework.data.domain.Pageable pageable) {
+        return cartRepository.findAll(pageable).map(this::convert);
+    }
+
+    public CartResponse getCartById(Long id) {
+        Cart cart = cartRepository.findById(id)
+                .orElseThrow(() -> new com.social.marketing.exception.NotFoundException(
+                        "Không tìm thấy giỏ hàng với ID: " + id));
+        return convert(cart);
+    }
+
+    @Transactional
+    public void deleteCart(Long id) {
+        if (!cartRepository.existsById(id)) {
+            throw new com.social.marketing.exception.NotFoundException("Không tìm thấy giỏ hàng với ID: " + id);
+        }
+        cartRepository.deleteById(id);
+    }
+
+    // ============ Cart Management Operations ============
+
+    @Transactional
+    public CartResponse addSingleItem(String link, com.social.marketing.cart.model.request.AddToCartRequest request) {
+        if (request == null) {
+            throw new BadRequestException("Request không được null");
+        }
+        Cart cart = getByLink(link);
+
+        Product product = storefrontProductService.getBySku(request.sku());
+        if (product == null) {
+            throw new BadRequestException("Không tìm thấy sản phẩm: " + request.sku());
+        }
+
+        BigDecimal price = product.getPrice();
+        if (price == null) {
+            throw new BadRequestException("Giá sản phẩm không hợp lệ cho SKU: " + request.sku());
+        }
+
+        // Tìm entry có cùng product
+        var existing = cart.getEntries().stream()
+                .filter(e -> e.getProduct() != null && e.getProduct().getSku().equals(request.sku()))
+                .findFirst();
+
+        if (existing.isPresent()) {
+            // Cập nhật số lượng nếu đã có
+            var e = existing.get();
+            e.setQuantity(e.getQuantity() + request.quantity());
+            e.setSubTotal(e.getPrice().multiply(BigDecimal.valueOf(e.getQuantity())));
+        } else {
+            // Thêm entry mới
+            com.social.marketing.cart.entity.CartEntry cartEntry = new com.social.marketing.cart.entity.CartEntry();
+            cartEntry.setCart(cart);
+            cartEntry.setProduct(product);
+            cartEntry.setPrice(price);
+            cartEntry.setQuantity(request.quantity());
+            cartEntry.setName(product.getName());
+            cartEntry.setDescription(request.description());
+            cartEntry.setSubTotal(price.multiply(BigDecimal.valueOf(request.quantity())));
+            cart.getEntries().add(cartEntry);
+        }
+
+        recalc(cart);
+        cartRepository.save(cart);
+        return convert(cart);
+    }
+
+    @Transactional
+    public CartResponse updateCartEntry(String link, Long entryId,
+            com.social.marketing.cart.model.request.UpdateCartEntryRequest request) {
+        Cart cart = getByLink(link);
+
+        com.social.marketing.cart.entity.CartEntry entry = cart.getEntries().stream()
+                .filter(e -> e.getId().equals(entryId))
+                .findFirst()
+                .orElseThrow(() -> new com.social.marketing.exception.NotFoundException(
+                        "Không tìm thấy sản phẩm trong giỏ hàng"));
+
+        entry.setQuantity(request.quantity());
+        entry.setSubTotal(entry.getPrice().multiply(BigDecimal.valueOf(request.quantity())));
+
+        recalc(cart);
+        cartRepository.save(cart);
+        return convert(cart);
+    }
+
+    @Transactional
+    public CartResponse removeCartEntry(String link, Long entryId) {
+        Cart cart = getByLink(link);
+
+        boolean removed = cart.getEntries().removeIf(e -> e.getId().equals(entryId));
+        if (!removed) {
+            throw new com.social.marketing.exception.NotFoundException("Không tìm thấy sản phẩm trong giỏ hàng");
+        }
+
+        recalc(cart);
+        cartRepository.save(cart);
+        return convert(cart);
+    }
+
+    @Transactional
+    public CartResponse clearCart(String link) {
+        Cart cart = getByLink(link);
+        cart.getEntries().clear();
+        cart.setSubTotal(BigDecimal.ZERO);
+        cart.setGrandTotal(BigDecimal.ZERO);
+        cartRepository.save(cart);
+        return convert(cart);
+    }
+
+    @Transactional
+    public CartResponse updateEmail(String link,
+            com.social.marketing.cart.model.request.UpdateCartEmailRequest request) {
+        Cart cart = getByLink(link);
+        cart.setEmail(request.email());
+        cartRepository.save(cart);
+        return convert(cart);
     }
 }
