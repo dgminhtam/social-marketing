@@ -9,4 +9,9 @@ public interface UserService {
     void save(User user);
 
     void syncUser(String clerkId, String email, String firstName, String lastName, String imageUrl);
+
+    User getCurrentUser();
+
+    User getUserByExternalId(String externalId);
+
 }

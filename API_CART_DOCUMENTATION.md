@@ -244,16 +244,23 @@ DELETE /carts/1
 
 Base URL: `/storefront/carts`
 
-> **Lưu ý:** Tất cả các API Storefront đều yêu cầu parameter `link` để xác định giỏ hàng. Link này là unique identifier cho mỗi session/user.
+> **Lưu ý:** Tất cả các API Storefront đều yêu cầu parameter `link` để xác định giỏ hàng cho **Anonymous User** (người dùng chưa đăng nhập).
+>
+> Đối với **Authenticated User** (người dùng đã đăng nhập):
+> - Hệ thống sẽ tự động xác định giỏ hàng dựa trên User ID.
+> - Parameter `link` vẫn nên được gửi lên để hỗ trợ trường hợp người dùng vừa đăng nhập (merge giỏ hàng anonymous vào giỏ hàng user).
+> - Nếu `link` được gửi lên, hệ thống sẽ kiểm tra và merge giỏ hàng anonymous (nếu có) vào giỏ hàng của User.
 
 ### 1. Lấy Giỏ Hàng
 
 **Endpoint:** `GET /storefront/carts`
 
-**Mô tả:** Lấy thông tin giỏ hàng theo link. Nếu giỏ chưa tồn tại, sẽ tự động tạo mới.
+**Mô tả:** Lấy thông tin giỏ hàng.
+- Nếu người dùng **đã đăng nhập**: Trả về giỏ hàng gắn với User. Nếu có `link` anonymous cart, sẽ thực hiện merge.
+- Nếu người dùng **chưa đăng nhập**: Trả về giỏ hàng theo `link`. Nếu chưa có, tạo mới với `link` đó.
 
 **Query Parameters:**
-- `link` (required): Link unique của giỏ hàng
+- `link` (optional for logged-in user, required for anonymous): Link unique của giỏ hàng (thường là UUID generate từ client)
 
 **Request Example:**
 ```http
@@ -689,12 +696,16 @@ Tất cả các lỗi đều trả về theo format:
 
 ## Best Practices
 
-### 1. Quản Lý Cart Link
+### 1. Quản Lý Cart Link & User Session
 
 ```javascript
-// Frontend nên lưu cart link vào localStorage hoặc session
+// Frontend nên lưu cart link vào localStorage
 const cartLink = localStorage.getItem('cartLink') || generateUniqueLink();
 localStorage.setItem('cartLink', cartLink);
+
+// Khi gọi API, luôn gửi kèm link
+// Nếu user đã đăng nhập, token sẽ được gửi qua Header (Authorization: Bearer ...)
+// Backend sẽ ưu tiên xử lý theo User Token, và dùng link để merge cart nếu cần.
 ```
 
 ### 2. Thêm Sản Phẩm Vào Giỏ

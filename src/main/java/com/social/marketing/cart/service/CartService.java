@@ -9,6 +9,8 @@ import com.social.marketing.exception.BadRequestException;
 import com.social.marketing.order.service.OrderService;
 import com.social.marketing.pcm.entity.Product;
 import com.social.marketing.pcm.service.StorefrontProductService;
+import com.social.marketing.user.entity.User;
+import com.social.marketing.user.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -30,9 +32,50 @@ public class CartService {
     @Resource
     private OrderService orderService;
 
+    @Resource
+    private UserService userService;
+
     public Cart getByLink(String link) {
+        User user = userService.getCurrentUser();
+        return getCartForUserOrLink(user, link);
+    }
+
+    private Cart getCartForUserOrLink(User user, String link) {
+        if (user != null) {
+            // 1. Try to find cart by User
+            Optional<Cart> userCart = cartRepository.findByUser(user);
+            if (userCart.isPresent()) {
+                return userCart.get();
+            }
+
+            // 2. If User has no cart, check if there is an anonymous cart with the link
+            Optional<Cart> linkCart = cartRepository.findByDescription(link);
+            if (linkCart.isPresent()) {
+                // Assign this anonymous cart to the user
+                Cart cart = linkCart.get();
+                if (cart.getUser() == null) {
+                    cart.setUser(user);
+                    return cartRepository.save(cart);
+                }
+            }
+
+            // 3. Create new cart for User
+            return createEmptyCartForUser(user, link);
+        }
+
+        // Anonymous flow
         Optional<Cart> cart = cartRepository.findByDescription(link);
         return cart.orElseGet(() -> createEmptyCartForLink(link));
+    }
+
+    private Cart createEmptyCartForUser(User user, String link) {
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cart.setDescription(link); // Keep link as metadata or fallback
+        cart.setEmail(user.getEmail());
+        cart.setSubTotal(BigDecimal.ZERO);
+        cart.setGrandTotal(BigDecimal.ZERO);
+        return cartRepository.save(cart);
     }
 
     private Cart createEmptyCartForLink(String link) {
