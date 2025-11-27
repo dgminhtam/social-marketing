@@ -30,6 +30,18 @@ public class ProductCollection extends AbstractEntity {
     @Column(length = 1000)
     private String description;
 
+    @Column
+    private String metaTitle;
+
+    @Column
+    private String metaDescription;
+
+    @Column
+    private String metaKeywords;
+
+    @Column
+    private Boolean isFeatured = false;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     private Media image;
@@ -40,11 +52,7 @@ public class ProductCollection extends AbstractEntity {
     private SetStatus status = SetStatus.INACTIVE;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "product_set_items",
-            joinColumns = @JoinColumn(name = "product_set_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
+    @JoinTable(name = "product_set_items", joinColumns = @JoinColumn(name = "product_set_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
     private Set<Product> products = new HashSet<>();
 
     public enum SetStatus {
