@@ -39,4 +39,6 @@ public interface ProductService {
     void convertUpdate(UpdateProductRequest source, Product target);
 
     ProductDetailResponse createProduct(CreateProductRequest request);
+
+    void importProducts(MultipartFile file);
 }

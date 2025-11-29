@@ -21,8 +21,26 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PushbackInputStream;
+import java.nio.charset.StandardCharsets;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
@@ -178,6 +196,115 @@ public class CategoryServiceImpl implements CategoryService {
                 throw new IllegalArgumentException("Circular parent relationship detected.");
             }
             ancestor = ancestor.getParent();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void importCategories(MultipartFile file) {
+        logger.info("Starting category import from file: {}", file.getOriginalFilename());
+        try {
+            InputStream is = file.getInputStream();
+            PushbackInputStream pis = new PushbackInputStream(is, 3);
+            byte[] bom = new byte[3];
+            int n = pis.read(bom);
+            if (n == 3 && bom[0] == (byte) 0xEF && bom[1] == (byte) 0xBB && bom[2] == (byte) 0xBF) {
+                // BOM skipped
+                logger.debug("BOM detected and skipped");
+            } else {
+                if (n > 0) pis.unread(bom, 0, n);
+            }
+
+            try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(pis, StandardCharsets.UTF_8));
+                 CSVParser csvParser = new CSVParser(fileReader,
+                         CSVFormat.DEFAULT.builder()
+                                 .setHeader()
+                                 .setSkipHeaderRecord(true)
+                                 .setIgnoreHeaderCase(true)
+                                 .setTrim(true)
+                                 .build())) {
+
+                List<Category> categories = new ArrayList<>();
+                Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+
+            // First pass: Create categories without parents
+            Map<String, Category> slugToCategoryMap = new HashMap<>();
+            List<CSVRecord> recordList = new ArrayList<>();
+            csvRecords.forEach(recordList::add);
+
+            logger.info("Processing {} category records", recordList.size());
+
+            for (CSVRecord csvRecord : recordList) {
+                Category category = new Category();
+                category.setName(csvRecord.get("name"));
+                category.setSlug(csvRecord.get("slug"));
+                category.setDescription(csvRecord.get("description"));
+                
+                String activeStr = csvRecord.get("active");
+                category.setActive(Boolean.parseBoolean(activeStr));
+
+                // Check if category already exists by slug to avoid duplicates or update?
+                // For simplicity, assuming new import or we can check existence.
+                // Let's check if slug exists in DB
+                Optional<Category> existing = categoryRepository.findBySlug(category.getSlug());
+                if (existing.isPresent()) {
+                    // Skip or update? Let's skip for now or maybe update fields
+                    Category existingCat = existing.get();
+                    existingCat.setName(category.getName());
+                    existingCat.setDescription(category.getDescription());
+                    existingCat.setActive(category.isActive());
+                    slugToCategoryMap.put(category.getSlug(), existingCat);
+                    categories.add(existingCat);
+                    logger.debug("Updating existing category: {}", category.getSlug());
+                } else {
+                    slugToCategoryMap.put(category.getSlug(), category);
+                    categories.add(category);
+                    logger.debug("Creating new category: {}", category.getSlug());
+                }
+            }
+            
+            // Save first to get IDs (if needed) or just persist
+            categoryRepository.saveAll(categories);
+            logger.info("Saved {} categories", categories.size());
+
+            // Second pass: Link parents
+            int linkedCount = 0;
+            for (CSVRecord csvRecord : recordList) {
+                String slug = csvRecord.get("slug");
+                String parentSlug = csvRecord.get("parentSlug");
+
+                if (StringUtils.isNotBlank(parentSlug)) {
+                    Category child = slugToCategoryMap.get(slug);
+                    Category parent = slugToCategoryMap.get(parentSlug);
+                    
+                    if (parent == null) {
+                        // Try to find in DB if not in current import
+                        Optional<Category> parentOpt = categoryRepository.findBySlug(parentSlug);
+                        if (parentOpt.isPresent()) {
+                            parent = parentOpt.get();
+                        }
+                    }
+
+                    if (parent != null && child != null) {
+                         // Validate parent
+                        try {
+                            validateParent(child, parent);
+                            child.setParent(parent);
+                            linkedCount++;
+                        } catch (IllegalArgumentException e) {
+                            logger.warn("Invalid parent for category {}: {}", slug, e.getMessage());
+                        }
+                    }
+                }
+            }
+            
+            categoryRepository.saveAll(categories);
+            logger.info("Category import completed. Total: {}, Linked to parents: {}", categories.size(), linkedCount);
+
+        }
+        } catch (IOException e) {
+            logger.error("Failed to parse CSV file: {}", e.getMessage(), e);
+            throw new RuntimeException("Fail to parse CSV file: " + e.getMessage());
         }
     }
 

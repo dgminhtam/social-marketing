@@ -48,8 +48,12 @@ public class ProductController {
         productService.uploadProductImage(id, image);
     }
 
-    @PatchMapping("/{id}/status")
     public void changeStatus(@PathVariable Long id, @RequestBody ChangeStatusRequest request) {
         productService.changeStatus(id, request);
+    }
+
+    @PostMapping("/import")
+    public void importProducts(@RequestParam("file") MultipartFile file) {
+        productService.importProducts(file);
     }
 }

@@ -37,3 +37,10 @@ application:
       endpoint: ${ENDPOINT}
       bucket-name: ${BUCKET_NAME}
       public-url: ${PUBLIC_URL}
+
+logging:
+  level:
+    root: INFO
+    com.social.marketing: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG

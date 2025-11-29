@@ -12,3 +12,10 @@ file:
 clerk:
   webhook:
     secret: ${CLERK_WEBHOOK_SECRET}
+
+logging:
+  level:
+    root: INFO
+    com.social.marketing: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

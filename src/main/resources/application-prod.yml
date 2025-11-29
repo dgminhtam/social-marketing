@@ -16,7 +16,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -37,3 +37,12 @@ application:
       endpoint: ${ENDPOINT}
       bucket-name: ${BUCKET_NAME}
       public-url: ${PUBLIC_URL}
+
+logging:
+  level:
+    root: INFO
+    com.social.marketing: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+  file:
+    name: ${LOG_PATH:./logs}/social-marketing.json

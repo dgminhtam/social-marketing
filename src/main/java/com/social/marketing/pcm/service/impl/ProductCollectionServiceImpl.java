@@ -139,7 +139,7 @@ public class ProductCollectionServiceImpl implements ProductCollectionService {
     public void removeProductsFromCollection(Long collectionId, List<Long> productIds) {
         ProductCollection collection = findById(collectionId);
         List<Product> productsToRemove = productRepository.findAllById(productIds);
-        collection.getProducts().removeAll(productsToRemove);
+        productsToRemove.forEach(collection.getProducts()::remove);
         productCollectionRepository.save(collection);
     }
 
