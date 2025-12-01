@@ -4,7 +4,6 @@ import com.social.marketing.entity.AbstractEntity;
 import com.social.marketing.media.entity.Media;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -46,17 +45,11 @@ public class ProductCollection extends AbstractEntity {
     @JoinColumn(name = "image_id")
     private Media image;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private SetStatus status = SetStatus.INACTIVE;
+    @Column
+    private boolean active = true;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "product_set_items", joinColumns = @JoinColumn(name = "product_set_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
+    @JoinTable(name = "product_set_items", joinColumns = @JoinColumn(name = "product_set_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id"))
     private Set<Product> products = new HashSet<>();
-
-    public enum SetStatus {
-        ACTIVE,
-        INACTIVE
-    }
 }

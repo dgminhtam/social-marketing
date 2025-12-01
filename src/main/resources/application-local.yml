@@ -21,12 +21,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
       jdbc:
         time_zone: UTC
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: https://composed-ocelot-3.clerk.accounts.dev/.well-known/jwks.json
-          issuer-uri: https://composed-ocelot-3.clerk.accounts.dev
 
 application:
   cloudflare:
@@ -38,5 +32,8 @@ application:
       public-url: https://pub-385a99dd700a4d468b195ab2a2b2b555.r2.dev
 
 clerk:
+  issuers:
+      - https://composed-ocelot-3.clerk.accounts.dev
+      - https://handy-goose-7.clerk.accounts.dev
   webhook:
     secret: whsec_R++7LcWZEmBFbMnAzWqGQXO5L9pWSBfG

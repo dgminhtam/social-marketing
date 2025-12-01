@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(name = "payment-transactions")
+@Table(name = "payment_transactions")
 @FieldNameConstants
 public class PaymentTransaction extends AbstractEntity {
 

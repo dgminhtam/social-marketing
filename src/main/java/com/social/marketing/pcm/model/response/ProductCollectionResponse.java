@@ -1,7 +1,6 @@
 package com.social.marketing.pcm.model.response;
 
 import com.social.marketing.media.model.response.MediaResponse;
-import com.social.marketing.pcm.entity.ProductCollection;
 import lombok.Data;
 
 @Data
@@ -15,7 +14,7 @@ public class ProductCollectionResponse {
     private String metaKeywords;
     private Boolean isFeatured;
     private MediaResponse image;
-    private ProductCollection.SetStatus status;
+    private Boolean active;
     private String createdDate;
     private String lastModifiedDate;
 }

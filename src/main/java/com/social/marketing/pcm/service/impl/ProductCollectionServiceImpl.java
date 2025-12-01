@@ -78,7 +78,7 @@ public class ProductCollectionServiceImpl implements ProductCollectionService {
         collection.setMetaDescription(request.metaDescription());
         collection.setMetaKeywords(request.metaKeywords());
         collection.setIsFeatured(request.isFeatured() != null ? request.isFeatured() : false);
-        collection.setStatus(request.status());
+        collection.setActive(request.status());
 
         if (request.imageId() != null) {
             Media image = mediaService.get(request.imageId());
@@ -107,7 +107,7 @@ public class ProductCollectionServiceImpl implements ProductCollectionService {
         collection.setMetaDescription(request.metaDescription());
         collection.setMetaKeywords(request.metaKeywords());
         collection.setIsFeatured(request.isFeatured() != null ? request.isFeatured() : false);
-        collection.setStatus(request.status());
+        collection.setActive(request.status());
 
         if (request.imageId() != null) {
             Media image = mediaService.get(request.imageId());
@@ -154,7 +154,7 @@ public class ProductCollectionServiceImpl implements ProductCollectionService {
         response.setMetaDescription(collection.getMetaDescription());
         response.setMetaKeywords(collection.getMetaKeywords());
         response.setIsFeatured(collection.getIsFeatured());
-        response.setStatus(collection.getStatus());
+        response.setActive(collection.isActive());
         if (collection.getImage() != null) {
             response.setImage(mediaService.convert(collection.getImage()));
         }
@@ -173,7 +173,7 @@ public class ProductCollectionServiceImpl implements ProductCollectionService {
         response.setMetaDescription(collection.getMetaDescription());
         response.setMetaKeywords(collection.getMetaKeywords());
         response.setIsFeatured(collection.getIsFeatured());
-        response.setStatus(collection.getStatus());
+        response.setActive(collection.isActive());
         if (collection.getImage() != null) {
             response.setImage(mediaService.convert(collection.getImage()));
         }

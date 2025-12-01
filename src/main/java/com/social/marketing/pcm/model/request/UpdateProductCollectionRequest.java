@@ -1,8 +1,6 @@
 package com.social.marketing.pcm.model.request;
 
-import com.social.marketing.pcm.entity.ProductCollection;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record UpdateProductCollectionRequest(
         @NotBlank String name,
@@ -13,5 +11,5 @@ public record UpdateProductCollectionRequest(
         String metaKeywords,
         Boolean isFeatured,
         Long imageId,
-        @NotNull ProductCollection.SetStatus status) {
+        Boolean status) {
 }

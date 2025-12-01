@@ -13,5 +13,5 @@ public record CreateProductCollectionRequest(
         String metaKeywords,
         Boolean isFeatured,
         Long imageId,
-        @NotNull ProductCollection.SetStatus status) {
+        Boolean status) {
 }

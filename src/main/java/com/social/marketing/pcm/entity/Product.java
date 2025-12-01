@@ -57,7 +57,7 @@ public class Product extends AbstractEntity {
     )
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "product_gallery",
             joinColumns = @JoinColumn(name = "product_id"),
