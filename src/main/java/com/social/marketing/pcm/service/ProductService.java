@@ -41,4 +41,8 @@ public interface ProductService {
     ProductDetailResponse createProduct(CreateProductRequest request);
 
     void importProducts(MultipartFile file);
+
+    void addAlternativeProduct(Long id, Long alternativeId);
+
+    void removeAlternativeProduct(Long id, Long alternativeId);
 }

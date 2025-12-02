@@ -27,7 +27,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -174,8 +173,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllBySkus(List<String> skus) {
-        Specification<Product> specification =
-                (root, query, builder) -> builder.in(root.get(Product.Fields.sku)).value(skus);
+        Specification<Product> specification = (root, query, builder) -> builder.in(root.get(Product.Fields.sku))
+                .value(skus);
         return productRepository.findAll(specification);
     }
 
@@ -222,6 +221,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
         return convertDetail(product);
     }
+
     @Override
     @Transactional
     public void importProducts(MultipartFile file) {
@@ -235,81 +235,104 @@ public class ProductServiceImpl implements ProductService {
                 // BOM skipped
                 logger.debug("BOM detected and skipped");
             } else {
-                if (n > 0) pis.unread(bom, 0, n);
+                if (n > 0)
+                    pis.unread(bom, 0, n);
             }
 
             try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(pis, StandardCharsets.UTF_8));
-                 CSVParser csvParser = new CSVParser(fileReader,
-                         CSVFormat.DEFAULT.builder()
-                                 .setHeader()
-                                 .setSkipHeaderRecord(true)
-                                 .setIgnoreHeaderCase(true)
-                                 .setTrim(true)
-                                 .build())) {
+                    CSVParser csvParser = new CSVParser(fileReader,
+                            CSVFormat.DEFAULT.builder()
+                                    .setHeader()
+                                    .setSkipHeaderRecord(true)
+                                    .setIgnoreHeaderCase(true)
+                                    .setTrim(true)
+                                    .build())) {
 
-            List<Product> products = new ArrayList<>();
-            Iterable<CSVRecord> csvRecords = csvParser.getRecords();
-            List<CSVRecord> recordList = new ArrayList<>();
-            csvRecords.forEach(recordList::add);
+                List<Product> products = new ArrayList<>();
+                Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+                List<CSVRecord> recordList = new ArrayList<>();
+                csvRecords.forEach(recordList::add);
 
-            logger.info("Processing {} product records", recordList.size());
+                logger.info("Processing {} product records", recordList.size());
 
-            for (CSVRecord csvRecord : recordList) {
-                Product product = new Product();
-                product.setName(csvRecord.get("name"));
-                product.setSku(csvRecord.get("sku"));
-                product.setSlug(csvRecord.get("slug"));
-                product.setDescription(csvRecord.get("description"));
+                for (CSVRecord csvRecord : recordList) {
+                    Product product = new Product();
+                    product.setName(csvRecord.get("name"));
+                    product.setSku(csvRecord.get("sku"));
+                    product.setSlug(csvRecord.get("slug"));
+                    product.setDescription(csvRecord.get("description"));
 
-                String priceStr = csvRecord.get("price");
-                if (StringUtils.isNotBlank(priceStr)) {
-                    product.setPrice(new BigDecimal(priceStr));
-                }
+                    String priceStr = csvRecord.get("price");
+                    if (StringUtils.isNotBlank(priceStr)) {
+                        product.setPrice(new BigDecimal(priceStr));
+                    }
 
-                String originPriceStr = csvRecord.get("originPrice");
-                if (StringUtils.isNotBlank(originPriceStr)) {
-                    product.setOriginPrice(new BigDecimal(originPriceStr));
-                }
+                    String originPriceStr = csvRecord.get("originPrice");
+                    if (StringUtils.isNotBlank(originPriceStr)) {
+                        product.setOriginPrice(new BigDecimal(originPriceStr));
+                    }
 
-                String statusStr = csvRecord.get("status");
-                if (StringUtils.isNotBlank(statusStr)) {
-                    try {
-                        product.setStatus(ProductStatus.valueOf(statusStr.toUpperCase()));
-                    } catch (IllegalArgumentException e) {
+                    String statusStr = csvRecord.get("status");
+                    if (StringUtils.isNotBlank(statusStr)) {
+                        try {
+                            product.setStatus(ProductStatus.valueOf(statusStr.toUpperCase()));
+                        } catch (IllegalArgumentException e) {
+                            product.setStatus(ProductStatus.DRAFT);
+                        }
+                    } else {
                         product.setStatus(ProductStatus.DRAFT);
                     }
-                } else {
-                    product.setStatus(ProductStatus.DRAFT);
-                }
 
-                if (csvRecord.isMapped("categorySlugs")) {
-                    String categorySlugsStr = csvRecord.get("categorySlugs");
-                    if (StringUtils.isNotBlank(categorySlugsStr)) {
-                        List<Category> productCategories = new ArrayList<>();
-                        String[] slugs = categorySlugsStr.split(",");
-                        for (String slug : slugs) {
-                            try {
-                                Category category = categoryService.findBySlug(slug.trim());
-                                productCategories.add(category);
-                            } catch (NotFoundException e) {
-                                logger.debug("Category not found for slug: {}", slug.trim());
+                    if (csvRecord.isMapped("categorySlugs")) {
+                        String categorySlugsStr = csvRecord.get("categorySlugs");
+                        if (StringUtils.isNotBlank(categorySlugsStr)) {
+                            List<Category> productCategories = new ArrayList<>();
+                            String[] slugs = categorySlugsStr.split(",");
+                            for (String slug : slugs) {
+                                try {
+                                    Category category = categoryService.findBySlug(slug.trim());
+                                    productCategories.add(category);
+                                } catch (NotFoundException e) {
+                                    logger.debug("Category not found for slug: {}", slug.trim());
+                                }
                             }
+                            product.setCategories(productCategories);
+                            logger.debug("Linked {} categories to product: {}", productCategories.size(),
+                                    product.getSku());
                         }
-                        product.setCategories(productCategories);
-                        logger.debug("Linked {} categories to product: {}", productCategories.size(), product.getSku());
                     }
+
+                    products.add(product);
                 }
 
-                products.add(product);
+                productRepository.saveAll(products);
+                logger.info("Product import completed. Total products imported: {}", products.size());
+
             }
-
-            productRepository.saveAll(products);
-            logger.info("Product import completed. Total products imported: {}", products.size());
-
-        }
         } catch (IOException e) {
             logger.error("Failed to parse CSV file: {}", e.getMessage(), e);
             throw new RuntimeException("Fail to parse CSV file: " + e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional
+    public void addAlternativeProduct(Long id, Long alternativeId) {
+        Product product = getProductById(id);
+        Product alternative = getProductById(alternativeId);
+        if (product.getAlternativeProducts().contains(alternative)) {
+            return;
+        }
+        product.getAlternativeProducts().add(alternative);
+        productRepository.save(product);
+    }
+
+    @Override
+    @Transactional
+    public void removeAlternativeProduct(Long id, Long alternativeId) {
+        Product product = getProductById(id);
+        Product alternative = getProductById(alternativeId);
+        product.getAlternativeProducts().remove(alternative);
+        productRepository.save(product);
     }
 }

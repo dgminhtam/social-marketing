@@ -38,10 +38,12 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
 
     @Override
     public Page<StorefrontProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {
-        Specification<Product> spec =
-                (root, query, builder) -> builder.equal(root.get(Product.Fields.status), ProductStatus.PUBLISHED);
-        Page<Product> products = productRepository.findAll(Objects.nonNull(specification) ? spec.and(specification) : spec, pageable);
-        List<StorefrontProductResponse> storefrontProductResponse = products.getContent().stream().map(this::convert).toList();
+        Specification<Product> spec = (root, query, builder) -> builder.equal(root.get(Product.Fields.status),
+                ProductStatus.PUBLISHED);
+        Page<Product> products = productRepository
+                .findAll(Objects.nonNull(specification) ? spec.and(specification) : spec, pageable);
+        List<StorefrontProductResponse> storefrontProductResponse = products.getContent().stream().map(this::convert)
+                .toList();
         return new PageImpl<>(storefrontProductResponse, products.getPageable(), products.getTotalElements());
     }
 
@@ -105,6 +107,10 @@ public class StorefrontProductServiceImpl implements StorefrontProductService {
             response.setCategories(categories.stream().map(storefrontCategoryService::convert).toList());
         }
         response.setImage(mediaService.convert(product.getImage()));
+        List<Product> alternativeProducts = product.getAlternativeProducts();
+        if (CollectionUtils.isNotEmpty(alternativeProducts)) {
+            response.setAlternativeProducts(alternativeProducts.stream().map(this::convert).toList());
+        }
         return response;
     }
 }

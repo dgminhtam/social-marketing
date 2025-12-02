@@ -1,6 +1,5 @@
 package com.social.marketing.pcm.model.response;
 
-
 import com.social.marketing.media.model.response.MediaResponse;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,4 +17,5 @@ public class StorefrontProductDetailResponse {
     private BigDecimal price;
     private MediaResponse image;
     private List<StorefrontCategoryResponse> categories;
+    private List<StorefrontProductResponse> alternativeProducts;
 }

@@ -20,49 +20,45 @@ import java.util.List;
 @FieldNameConstants
 public class Product extends AbstractEntity {
 
-    @NotBlank
-    @Column(unique = true)
-    private String sku;
+        @NotBlank
+        @Column(unique = true)
+        private String sku;
 
-    @NotBlank
-    @Column
-    private String name;
+        @NotBlank
+        @Column
+        private String name;
 
-    @Column
-    private String slug;
+        @Column
+        private String slug;
 
-    @Column
-    private String description;
+        @Column
+        private String description;
 
-    @PositiveOrZero
-    @Column
-    private BigDecimal price;
+        @PositiveOrZero
+        @Column
+        private BigDecimal price;
 
-    @PositiveOrZero
-    @Column
-    private BigDecimal originPrice;
+        @PositiveOrZero
+        @Column
+        private BigDecimal originPrice;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Media image;
+        @OneToOne(fetch = FetchType.LAZY)
+        private Media image;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ProductStatus status = ProductStatus.DRAFT;
+        @Column(nullable = false)
+        @Enumerated(EnumType.STRING)
+        private ProductStatus status = ProductStatus.DRAFT;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "product_categories",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private List<Category> categories = new ArrayList<>();
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+        private List<Category> categories = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "product_gallery",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "media_id")
-    )
-    private List<Media> gallery = new ArrayList<>();
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "product_gallery", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "media_id"))
+        private List<Media> gallery = new ArrayList<>();
+
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "product_alternatives", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "alternative_id"))
+        private List<Product> alternativeProducts = new ArrayList<>();
 
 }

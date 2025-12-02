@@ -39,7 +39,8 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ProductDetailResponse updateProduct(@PathVariable Long id, @RequestBody @Valid UpdateProductRequest request) {
+    public ProductDetailResponse updateProduct(@PathVariable Long id,
+            @RequestBody @Valid UpdateProductRequest request) {
         return productService.updateProduct(id, request);
     }
 
@@ -55,5 +56,15 @@ public class ProductController {
     @PostMapping("/import")
     public void importProducts(@RequestParam("file") MultipartFile file) {
         productService.importProducts(file);
+    }
+
+    @PostMapping("/{id}/alternatives/{alternativeId}")
+    public void addAlternativeProduct(@PathVariable Long id, @PathVariable Long alternativeId) {
+        productService.addAlternativeProduct(id, alternativeId);
+    }
+
+    @DeleteMapping("/{id}/alternatives/{alternativeId}")
+    public void removeAlternativeProduct(@PathVariable Long id, @PathVariable Long alternativeId) {
+        productService.removeAlternativeProduct(id, alternativeId);
     }
 }
