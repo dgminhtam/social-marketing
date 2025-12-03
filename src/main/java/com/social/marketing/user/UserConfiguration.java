@@ -17,4 +17,11 @@ public class UserConfiguration {
         return new UserServiceImpl(userRepository, mediaService);
     }
 
+    @Bean
+    public com.social.marketing.user.service.AddressService addressService(
+            com.social.marketing.user.repository.AddressRepository addressRepository,
+            UserService userService) {
+        return new com.social.marketing.user.service.impl.AddressServiceImpl(addressRepository, userService);
+    }
+
 }

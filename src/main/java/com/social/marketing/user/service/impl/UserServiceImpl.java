@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void syncUser(String clerkUserId, String email, String firstName, String lastName, String imageUrl) {
-        User user = getUserByEmail(email);
+        User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             user = new User();
         }

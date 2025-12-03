@@ -55,7 +55,15 @@ public class SecurityConfiguration {
 
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/storefront/**", "/health", "/webhooks/**").permitAll()
+                        .requestMatchers("/storefront/products",
+                                "/storefront/carts",
+                                "/storefront/carts/**",
+                                "/storefront/categories",
+                                "/storefront/products/**",
+                                "/storefront/categories/**",
+                                "/health",
+                                "/webhooks/**"
+                        ).permitAll()
                         .requestMatchers("/backoffice/**").hasAuthority("ROLE_admin")
                         .anyRequest().authenticated()
                 );
