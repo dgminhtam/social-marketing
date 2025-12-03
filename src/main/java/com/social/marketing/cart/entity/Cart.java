@@ -25,9 +25,6 @@ public class Cart extends AbstractEntity {
     private User user;
 
     @Column
-    private String description;
-
-    @Column
     private BigDecimal subTotal;
 
     @Column
@@ -35,4 +32,7 @@ public class Cart extends AbstractEntity {
 
     @OneToMany(mappedBy = CartEntry.Fields.cart, cascade = { CascadeType.ALL }, orphanRemoval = true)
     private List<CartEntry> entries = new ArrayList<>();
+
+    @Column
+    private String sid;
 }
