@@ -152,6 +152,7 @@ public class CartServiceImpl implements CartService {
         return convert(cart);
     }
 
+    @Override
     public CartResponse getCart(String sid) {
         return convert(getBySid(sid));
     }

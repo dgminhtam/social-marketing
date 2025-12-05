@@ -7,6 +7,7 @@ import com.social.marketing.cart.model.response.CartResponse;
 import jakarta.transaction.Transactional;
 
 public interface CartService {
+
     Cart getBySid(String sid);
 
     @Transactional
@@ -30,4 +31,6 @@ public interface CartService {
 
     @Transactional
     CartResponse updateEmail(String sid, UpdateCartEmailRequest request);
+
+    CartResponse getCart(String sid);
 }
