@@ -1,5 +1,6 @@
 package com.social.marketing.pcm.service.impl;
 
+import org.springframework.stereotype.Service;
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.service.MediaService;
@@ -41,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
+@Service
 public class ProductServiceImpl implements ProductService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);

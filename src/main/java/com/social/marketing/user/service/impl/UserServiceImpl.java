@@ -1,5 +1,6 @@
 package com.social.marketing.user.service.impl;
 
+import org.springframework.stereotype.Service;
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.service.MediaService;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 
 @AllArgsConstructor
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;

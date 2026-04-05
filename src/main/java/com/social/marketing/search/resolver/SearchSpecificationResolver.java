@@ -27,9 +27,9 @@ public class SearchSpecificationResolver implements HandlerMethodArgumentResolve
 
     @Override
     public Object resolveArgument(@Nonnull MethodParameter parameter,
-                                  @Nonnull ModelAndViewContainer mavContainer,
-                                  @Nonnull NativeWebRequest webRequest,
-                                  @Nonnull WebDataBinderFactory binderFactory) {
+            @Nonnull ModelAndViewContainer mavContainer,
+            @Nonnull NativeWebRequest webRequest,
+            @Nonnull WebDataBinderFactory binderFactory) {
         String query = webRequest.getParameter("$filter");
         if (StringUtils.isBlank(query)) {
             return null;

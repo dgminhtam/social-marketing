@@ -1,5 +1,6 @@
 package com.social.marketing.cart.service.impl;
 
+import org.springframework.stereotype.Service;
 import com.social.marketing.cart.entity.Cart;
 import com.social.marketing.cart.model.request.OrderEntryRequest;
 import com.social.marketing.cart.model.request.PlaceOrderRequest;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Service
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;

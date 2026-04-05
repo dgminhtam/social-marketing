@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.social.marketing.auth.SecurityConfiguration;
 import com.social.marketing.media.MediaConfiguration;
-import com.social.marketing.pcm.PcmConfiguration;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Import;
 @Import(
         {
                 SecurityConfiguration.class,
-                PcmConfiguration.class,
                 MediaConfiguration.class
         }
 )

@@ -1,11 +1,7 @@
 package com.social.marketing.media;
 
 import com.social.marketing.media.configuration.MediaProperties;
-import com.social.marketing.media.respository.MediaRepository;
-import com.social.marketing.media.service.FileService;
-import com.social.marketing.media.service.MediaService;
-import com.social.marketing.media.service.impl.R2FileServiceImpl;
-import com.social.marketing.media.service.impl.MediaServiceImpl;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,15 +40,7 @@ public class MediaConfiguration {
                 .build();
     }
 
-    @Bean
-    public MediaService mediaService(MediaRepository mediaRepository, FileService fileService, MediaProperties properties) {
-        return new MediaServiceImpl(mediaRepository, fileService, properties);
-    }
 
-    @Bean
-    public FileService fileService(Tika tika, MediaProperties properties, S3Client s3Client) {
-        return new R2FileServiceImpl(tika, properties, s3Client);
-    }
 
     @Bean
     public Tika tika() {

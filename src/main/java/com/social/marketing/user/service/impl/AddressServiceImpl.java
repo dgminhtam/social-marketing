@@ -1,5 +1,6 @@
 package com.social.marketing.user.service.impl;
 
+import org.springframework.stereotype.Service;
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.user.entity.Address;
 import com.social.marketing.user.entity.User;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 @AllArgsConstructor
+@Service
 public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;

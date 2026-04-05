@@ -1,5 +1,6 @@
 package com.social.marketing.media.service.impl;
 
+import org.springframework.stereotype.Service;
 import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.media.configuration.MediaProperties;
 import com.social.marketing.media.entity.Media;
@@ -25,6 +26,7 @@ import java.util.Objects;
 
 @Slf4j // Thêm logger để track việc xóa
 @RequiredArgsConstructor
+@Service
 public class MediaServiceImpl implements MediaService {
 
     private final MediaRepository mediaRepository;

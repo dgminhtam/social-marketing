@@ -1,5 +1,6 @@
 package com.social.marketing.blog.service.impl;
 
+import org.springframework.stereotype.Service;
 import com.social.marketing.blog.entity.BlogPost;
 import com.social.marketing.blog.model.request.CreateBlogPostRequest;
 import com.social.marketing.blog.model.request.UpdateBlogPostRequest;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
+@Service
 public class BlogServiceImpl implements BlogService {
 
     private final BlogPostRepository blogPostRepository;
