@@ -5,18 +5,18 @@ import com.social.marketing.order.model.request.PlaceOrderRequest;
 import com.social.marketing.order.model.response.OrderResponse;
 import com.social.marketing.order.service.OrderService;
 import com.social.marketing.search.anotation.Search;
-import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/client/orders")
+@RequiredArgsConstructor
 public class StorefrontController {
 
-    @Resource
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @PostMapping
     public OrderResponse placeOrder(@RequestBody PlaceOrderRequest request) {

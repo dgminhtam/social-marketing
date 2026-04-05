@@ -12,7 +12,6 @@ import com.social.marketing.order.repository.OrderRepository;
 import com.social.marketing.order.service.OrderService;
 import com.social.marketing.pcm.entity.Product;
 import com.social.marketing.pcm.service.StorefrontProductService;
-import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
@@ -26,15 +25,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    @Resource
-    private StorefrontProductService storefrontProductService;
+    private final StorefrontProductService storefrontProductService;
 
-    @Resource
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
     @Override
     @Transactional

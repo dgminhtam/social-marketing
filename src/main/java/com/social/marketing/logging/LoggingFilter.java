@@ -1,4 +1,4 @@
-package com.social.marketing.config;
+package com.social.marketing.logging;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,8 +15,10 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * Servlet filter that populates MDC (Mapped Diagnostic Context) with request tracking information.
- * This enables structured logging with traceId, userId, and requestUri in every log entry.
+ * Servlet filter that populates MDC (Mapped Diagnostic Context) with request
+ * tracking information.
+ * This enables structured logging with traceId, userId, and requestUri in every
+ * log entry.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -30,7 +32,7 @@ public class LoggingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
+
         if (request instanceof HttpServletRequest httpRequest) {
             // Generate unique trace ID for this request
             String traceId = UUID.randomUUID().toString();
@@ -38,7 +40,8 @@ public class LoggingFilter implements Filter {
 
             // Extract user ID from security context if available
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
+            if (authentication != null && authentication.isAuthenticated()
+                    && !"anonymousUser".equals(authentication.getPrincipal())) {
                 String userId = authentication.getName();
                 MDC.put(USER_ID_KEY, userId);
             }

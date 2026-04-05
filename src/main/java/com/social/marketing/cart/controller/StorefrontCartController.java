@@ -6,16 +6,16 @@ import com.social.marketing.cart.model.request.UpdateCartEmailRequest;
 import com.social.marketing.cart.model.request.UpdateCartEntryRequest;
 import com.social.marketing.cart.model.response.CartResponse;
 import com.social.marketing.cart.service.CartService;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/storefront/carts")
+@RequiredArgsConstructor
 public class StorefrontCartController {
 
-    @Resource
-    private CartService cartService;
+    private final CartService cartService;
 
     @GetMapping
     public CartResponse getCart(@RequestParam("sid") String sid) {

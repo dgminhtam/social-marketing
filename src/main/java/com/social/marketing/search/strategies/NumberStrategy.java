@@ -1,7 +1,6 @@
 package com.social.marketing.search.strategies;
 
 import com.social.marketing.exception.BadRequestException;
-import com.social.marketing.exception.BaseException;
 import com.social.marketing.search.model.QueryOperator;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Path;
@@ -36,7 +35,7 @@ class NumberStrategy extends ParsingStrategy<Number> {
 
     @Override
     protected Predicate build(final CriteriaBuilder builder, final Path<?> path, final String fieldName,
-                              final QueryOperator operator, final Number value, final List<Number> values) {
+            final QueryOperator operator, final Number value, final List<Number> values) {
         Path<BigDecimal> expression = path.get(fieldName);
         return switch (operator) {
             case GT -> builder.gt(expression, value);

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -37,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 

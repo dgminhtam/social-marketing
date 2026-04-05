@@ -3,7 +3,6 @@ package com.social.marketing.rest.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.social.marketing.rest.factory.ResponseTypeFactory;
 import com.social.marketing.rest.service.RestTemplateService;
-import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -14,17 +13,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class RestTemplateServiceImpl implements RestTemplateService {
 
     private static final Logger logger = LoggerFactory.getLogger(RestTemplateServiceImpl.class);
 
-    @Resource
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    @Resource
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     public <T> T getData(String url, HttpHeaders headers, ParameterizedTypeReference<T> responseType) {

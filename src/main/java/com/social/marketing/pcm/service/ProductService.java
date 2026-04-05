@@ -1,6 +1,5 @@
 package com.social.marketing.pcm.service;
 
-import com.social.marketing.pcm.entity.Category;
 import com.social.marketing.pcm.entity.Product;
 import com.social.marketing.pcm.model.request.ChangeStatusRequest;
 import com.social.marketing.pcm.model.request.CreateProductRequest;

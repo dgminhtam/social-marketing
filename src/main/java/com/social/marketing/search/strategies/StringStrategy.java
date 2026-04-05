@@ -20,7 +20,6 @@ public class StringStrategy extends ParsingStrategy<String> {
     private static final Character ESCAPE_CHARACTER = '\\';
     private static final Character PERCENT_SIGN = '%';
     private static final String REGEX_EXPRESSION = "<[^>]*>";
-    private static String databaseType;
     private static StringStrategy instance = null;
 
     private StringStrategy() {
@@ -36,7 +35,7 @@ public class StringStrategy extends ParsingStrategy<String> {
 
     @Override
     protected Predicate build(final CriteriaBuilder builder, final Path<?> path, final String fieldName,
-                              final QueryOperator operator, final String value, final List<String> values) {
+            final QueryOperator operator, final String value, final List<String> values) {
         String searchValue = prepareSearchValue(value);
         String lowerCasedValue = searchValue.toLowerCase();
 

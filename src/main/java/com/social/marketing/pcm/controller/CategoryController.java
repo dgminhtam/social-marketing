@@ -6,7 +6,7 @@ import com.social.marketing.pcm.model.request.UpdateCategoryRequest;
 import com.social.marketing.pcm.model.response.CategoryResponse;
 import com.social.marketing.pcm.service.CategoryService;
 import com.social.marketing.search.anotation.Search;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +18,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
-    @Resource
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public Page<CategoryResponse> get(@Search Specification<Category> specification, Pageable pageable) {

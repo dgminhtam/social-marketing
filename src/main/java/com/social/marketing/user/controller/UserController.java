@@ -4,17 +4,17 @@ import com.social.marketing.exception.NotFoundException;
 import com.social.marketing.user.model.UserResponse;
 import com.social.marketing.user.service.UserService;
 import com.social.marketing.user.entity.User;
-import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/storefront/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Resource
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping(value = "/profile")
     public UserResponse getProfile() {

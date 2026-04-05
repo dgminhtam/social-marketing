@@ -1,7 +1,6 @@
 package com.social.marketing.search.strategies;
 
 import com.social.marketing.exception.BadRequestException;
-import com.social.marketing.exception.BaseException;
 import com.social.marketing.search.model.QueryOperator;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Path;
@@ -28,7 +27,7 @@ class CollectionStrategy extends ParsingStrategy<Collection<?>> {
 
     @Override
     protected Predicate build(final CriteriaBuilder builder, final Path<?> path, final String fieldName,
-                              final QueryOperator operator, final Collection<?> value, final List<Collection<?>> values) {
+            final QueryOperator operator, final Collection<?> value, final List<Collection<?>> values) {
         Path<Collection<?>> expression = path.get(fieldName);
         return switch (operator) {
             case EMPTY -> builder.isEmpty(expression);

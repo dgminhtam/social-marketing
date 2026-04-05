@@ -2,11 +2,9 @@ package com.social.marketing.pcm.service.impl;
 
 import com.social.marketing.media.service.MediaService;
 import com.social.marketing.pcm.entity.Category;
-import com.social.marketing.pcm.model.response.CategoryResponse;
 import com.social.marketing.pcm.model.response.StorefrontCategoryResponse;
 import com.social.marketing.pcm.repository.CategoryRepository;
 import com.social.marketing.pcm.service.StorefrontCategoryService;
-import jakarta.annotation.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,15 +14,15 @@ import org.springframework.stereotype.Service;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class StorefrontCategoryServiceImpl implements StorefrontCategoryService {
 
-    @Resource
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    @Resource
-    private MediaService mediaService;
+    private final MediaService mediaService;
 
     @Override
     public void saveAll(List<Category> categories) {
@@ -33,15 +31,16 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
 
     @Override
     public List<Category> getAllByNames(Set<String> names) {
-        Specification<Category> specification = (root, query, builder) ->
-                builder.in(root.get(Category.Fields.name)).value(names);
+        Specification<Category> specification = (root, query, builder) -> builder.in(root.get(Category.Fields.name))
+                .value(names);
         return categoryRepository.findAll(specification);
     }
 
     @Override
     public Page<StorefrontCategoryResponse> getCategories(Specification<Category> specification, Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(specification, pageable);
-        List<StorefrontCategoryResponse> storefrontCategoryRespons = categories.getContent().stream().map(this::convert).toList();
+        List<StorefrontCategoryResponse> storefrontCategoryRespons = categories.getContent().stream().map(this::convert)
+                .toList();
         return new PageImpl<>(storefrontCategoryRespons, categories.getPageable(), categories.getTotalElements());
     }
 
@@ -52,8 +51,8 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
 
     @Override
     public List<StorefrontCategoryResponse> getCategoryTree() {
-        Specification<Category> specification = (root, query, criteriaBuilder)
-                -> criteriaBuilder.isNull(root.get(Category.Fields.parent));
+        Specification<Category> specification = (root, query, criteriaBuilder) -> criteriaBuilder
+                .isNull(root.get(Category.Fields.parent));
         List<Category> categories = categoryRepository.findAll(specification);
         return categories.stream().map(this::convert).toList();
     }
@@ -77,8 +76,8 @@ public class StorefrontCategoryServiceImpl implements StorefrontCategoryService 
 
     @Override
     public List<StorefrontCategoryResponse> getRootCategories() {
-        Specification<Category> specification = (root, query, criteriaBuilder)
-                -> criteriaBuilder.isNull(root.get(Category.Fields.parent));
+        Specification<Category> specification = (root, query, criteriaBuilder) -> criteriaBuilder
+                .isNull(root.get(Category.Fields.parent));
         List<Category> categories = categoryRepository.findAll(specification);
         return categories.stream().map(this::convert).toList();
     }

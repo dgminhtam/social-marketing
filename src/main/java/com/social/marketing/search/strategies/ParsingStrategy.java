@@ -1,7 +1,6 @@
 package com.social.marketing.search.strategies;
 
 import com.social.marketing.exception.BadRequestException;
-import com.social.marketing.exception.BaseException;
 import com.social.marketing.search.model.QueryCriteria;
 import com.social.marketing.search.model.QueryOperator;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -57,7 +56,7 @@ public class ParsingStrategy<T> {
      */
     @SuppressWarnings("all")
     public final Predicate buildPredicate(final CriteriaBuilder builder, final Path<?> path, final Class<?> fieldClass,
-                                          final String fieldName, final QueryCriteria criteria) {
+            final String fieldName, final QueryCriteria criteria) {
         ParsingStrategy<T> strategy = (ParsingStrategy<T>) getStrategy(fieldClass);
         T value = strategy.parse(criteria.getValue(), fieldClass);
         List<T> values = strategy.parse(criteria.getValues(), fieldClass);
@@ -92,7 +91,7 @@ public class ParsingStrategy<T> {
      * @return Predicate
      */
     protected Predicate build(final CriteriaBuilder builder, final Path<?> path, final String fieldName,
-                              final QueryOperator operator, final T value, final List<T> values) {
+            final QueryOperator operator, final T value, final List<T> values) {
         Path<Object> expression = path.get(fieldName);
         return switch (operator) {
             case EQ -> builder.equal(expression, value);

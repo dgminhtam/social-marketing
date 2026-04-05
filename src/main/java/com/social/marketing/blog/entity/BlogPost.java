@@ -40,8 +40,4 @@ public class BlogPost extends AbstractEntity {
 
     @Column
     private LocalDateTime publishedAt;
-
-    // Future: Author relationship
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // private User author;
 }

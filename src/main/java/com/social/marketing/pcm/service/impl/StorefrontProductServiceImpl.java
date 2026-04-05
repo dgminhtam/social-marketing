@@ -11,7 +11,6 @@ import com.social.marketing.pcm.model.response.StorefrontProductResponse;
 import com.social.marketing.pcm.repository.ProductRepository;
 import com.social.marketing.pcm.service.StorefrontCategoryService;
 import com.social.marketing.pcm.service.StorefrontProductService;
-import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,18 +22,17 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class StorefrontProductServiceImpl implements StorefrontProductService {
 
-    @Resource
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    @Resource
-    private MediaService mediaService;
+    private final MediaService mediaService;
 
-    @Resource
-    private StorefrontCategoryService storefrontCategoryService;
+    private final StorefrontCategoryService storefrontCategoryService;
 
     @Override
     public Page<StorefrontProductResponse> getProducts(Specification<Product> specification, Pageable pageable) {

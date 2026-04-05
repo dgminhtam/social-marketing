@@ -3,8 +3,6 @@ package com.social.marketing.media.controller;
 import com.social.marketing.media.entity.Media;
 import com.social.marketing.media.model.response.MediaResponse;
 import com.social.marketing.media.service.MediaService;
-import com.social.marketing.pcm.entity.Product;
-import com.social.marketing.pcm.model.response.ProductResponse;
 import com.social.marketing.search.anotation.Search;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

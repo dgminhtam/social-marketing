@@ -8,20 +8,20 @@ import com.social.marketing.pcm.model.response.ProductDetailResponse;
 import com.social.marketing.pcm.model.response.ProductResponse;
 import com.social.marketing.pcm.service.ProductService;
 import com.social.marketing.search.anotation.Search;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
-    @Resource
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping
     public Page<ProductResponse> getProducts(@Search Specification<Product> specification, Pageable pageable) {

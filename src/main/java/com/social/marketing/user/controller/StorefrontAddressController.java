@@ -5,18 +5,18 @@ import com.social.marketing.user.model.AddressResponse;
 import com.social.marketing.user.model.CreateAddressRequest;
 import com.social.marketing.user.model.UpdateAddressRequest;
 import com.social.marketing.user.service.AddressService;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/storefront/addresses")
+@RequiredArgsConstructor
 public class StorefrontAddressController {
 
-    @Resource
-    private AddressService addressService;
+    private final AddressService addressService;
 
     @GetMapping
     public List<AddressResponse> getAddresses() {

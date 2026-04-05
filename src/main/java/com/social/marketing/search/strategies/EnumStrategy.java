@@ -1,7 +1,6 @@
 package com.social.marketing.search.strategies;
 
 import com.social.marketing.exception.BadRequestException;
-import com.social.marketing.exception.BaseException;
 
 import java.util.Objects;
 
