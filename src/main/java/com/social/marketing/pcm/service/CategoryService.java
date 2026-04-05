@@ -11,7 +11,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Set;
 
 public interface CategoryService {
 
@@ -41,4 +40,3 @@ public interface CategoryService {
 
     void importCategories(MultipartFile file);
 }
-
