@@ -1,4 +1,4 @@
-package com.social.marketing.initialize;
+package com.social.marketing.logging;
 
 import lombok.Getter;
 import lombok.Setter;

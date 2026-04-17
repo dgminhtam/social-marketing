@@ -1,5 +1,6 @@
 package com.social.marketing.initialize;
 
+import com.social.marketing.logging.InitializeProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

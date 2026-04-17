@@ -62,7 +62,7 @@ public class WebClientConfig {
 
     // Ví dụ 2: Khởi tạo Bean cần Builder phức tạp
     @Bean
-    public RestTemplate paymentRestTemplate(RestTemplateBuilder builder) {
+    public RestTemplate paymentRestTemplate(RestTemplateBuilder builder) 
         return builder
                 .setConnectTimeout(Duration.ofSeconds(5))
                 .setReadTimeout(Duration.ofSeconds(5))
